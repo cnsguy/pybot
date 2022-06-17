@@ -1,0 +1,18 @@
+{
+    "nick": "pybot",
+    "ident": "bot",
+    "real_name": "pybot",
+    "db_name": "Libera",
+    "host": "irc.libera.chat",
+    "command_prefix": "!",
+    "port": 6667,
+    "modules": [
+        "help",
+        "talkbot",
+        "channel",
+        "network",
+        "word_trigger",
+        "say",
+        "module"
+    ]
+}
