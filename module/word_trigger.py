@@ -31,7 +31,6 @@ class ModuleMain(core.module.Module):
             if re_match(entry["sender_pattern"], source):
                 for match in re_finditer(entry["word_pattern"], message):
                     start, end = match.span()
-                    print(message[start:end])
                     self.bot.send_message(target, re_sub(entry["word_pattern"], entry["response"], message[start:end]))
 
     def handle_add_command(self, source, target, was_pm, args):
