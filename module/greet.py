@@ -13,14 +13,14 @@ class ModuleMain(core.module.Module):
 
         self.register_packet_handler("JOIN", self.handle_join)
         self.register_command(
-            core.command.Command("add_greeting", self.handle_add_greeting_command, 2, None,
-                "<pattern> <greeting>", "greet.add_greeting"))
+            core.command.Command("add_greeting", self.handle_add_greeting_command, 2, "<pattern> <greeting>",
+                "Sets the greeting for the specified pattern.", "greet.add_greeting"))
         self.register_command(
             core.command.Command("list_greetings", self.handle_list_greetings_command, 0, None,
-                None))
+                "Lists all stored greetings."))
         self.register_command(
-            core.command.Command("del_greeting", self.handle_del_greeting_command, 1, None,
-                "<greeting>", "greet.del_greeting"))
+            core.command.Command("del_greeting", self.handle_del_greeting_command, 1, "<pattern>",
+                "Deletes the specified greeting.", "greet.del_greeting"))
 
     def handle_join(self, source, args):
         channel_name = args[0]
@@ -37,7 +37,7 @@ class ModuleMain(core.module.Module):
 
         self.config["patterns"][pattern] = greeting
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Udvozlouzenet hozzaadva.")
+        self.bot.send_message(target, "Greeting added.")
 
     def handle_list_greetings_command(self, source, target, was_pm, args):
         message = []
@@ -45,16 +45,15 @@ class ModuleMain(core.module.Module):
         for pattern, greeting in self.config["patterns"].items():
             message.append("%s - %s" % (pattern, greeting))
 
-        final_message = "Udvozlouzenetek:\n%s" % "\n".join(message)
-        self.bot.send_message(target, final_message)
+        self.bot.send_message(target, "Greetings:\n%s" % "\n".join(message))
 
     def handle_del_greeting_command(self, source, target, was_pm, args):
         pattern = args[0]
 
         if pattern not in self.config["patterns"]:
-            self.bot.send_message(target, "Nincs ilyen regex pattern.")
+            self.bot.send_message(target, "No such regex pattern.")
             return
 
         del self.config["patterns"][pattern]
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Udvozouzenet torolve.")
+        self.bot.send_message(target, "Greeting deleted.")

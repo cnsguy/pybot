@@ -10,10 +10,10 @@ class ModuleMain(core.module.Module):
 
         self.register_command(
             core.command.Command("join", self.handle_join_command, 1, "<channel>", 
-                "Csatlakozik az adott csatornahoz.", "channel.join"))
+                "Joins a channel.", "channel.join"))
         self.register_command(
             core.command.Command("part", self.handle_part_command, 0, "(<channel>)",
-                "Elhagyja az adott, vagy a jelenlegi csatornat.", "channel.part"))
+                "Leaves either the specified, or the current channel.", "channel.part"))
 
     def handle_join_command(self, source, target, was_pm, args):
         target_channel_name = args[0]

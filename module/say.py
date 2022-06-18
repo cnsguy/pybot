@@ -7,14 +7,14 @@ class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
         self.register_command(
-            core.command.Command("say", self.handle_say_command, 0, "<uzenet...>",
-                "Kuld egy uzenetet a jelenlegi csatornara.", "say.say"))
+            core.command.Command("say", self.handle_say_command, 0, "<message...>",
+                "Sends a message to the current channel.", "say.say"))
         self.register_command(
-            core.command.Command("say_to", self.handle_say_to_command, 1, "<csatorna> <uzenet...>",
-                "Kuld egy uzenetet a megadott csatornara.", "say.say"))
+            core.command.Command("say_to", self.handle_say_to_command, 1, "<channel> <message...>",
+                "Sends a message to the target channel.", "say.say"))
         self.register_command(
-            core.command.Command("raw", self.handle_raw_command, 0, "<uzenet...>",
-                "Kuld egy raw parancsot a szervernek.", "say.raw"))
+            core.command.Command("raw", self.handle_raw_command, 0, "<message...>",
+                "Sends a raw line to the server.", "say.raw"))
 
     def handle_say_command(self, source, target, was_pm, args):
         message = " ".join(args)

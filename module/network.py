@@ -7,11 +7,11 @@ class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
         self.register_command(
-            core.command.Command("quit", self.handle_quit_command, 0, "(<indok...>)",
-                "Kilep a jelenlegi irc szerverrol", "network.quit"))
+            core.command.Command("quit", self.handle_quit_command, 0, "(<reason...>)",
+                "QUITs the current server.", "network.quit"))
         self.register_command(
-            core.command.Command("restart", self.handle_restart_command, 0, "(<indok...>)",
-                "Ujrainditja a botot", "network.restart"))
+            core.command.Command("restart", self.handle_restart_command, 0, "(<reason...>)",
+                "Restarts the bot.", "network.restart"))
 
     def handle_quit_command(self, source, target, was_pm, args):
         reason = " ".join(args)

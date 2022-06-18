@@ -16,14 +16,14 @@ class ModuleMain(core.module.Module):
         })
 
         self.register_command(
-            core.command.Command("add_tag", self.handle_add_tag_command, 2, 
-                "<tag> <channel>", "Hozzaad egy broadcast-system taget", "broadcast.add_tag"))
+            core.command.Command("add_tag", self.handle_add_tag_command, 2, "<tag> <channel>",
+                "Adds a broadcast tag to the specified channel.", "broadcast.add_tag"))
         self.register_command(
-            core.command.Command("del_tag", self.handle_del_tag_command, 2,
-                "<tag> <channel>", "Torol egy broadcast-system taget", "broadcast.del_tag"))
+            core.command.Command("del_tag", self.handle_del_tag_command, 2, "<tag> <channel>",
+                "Deletes a broadcast tag from the specified channel.", "broadcast.del_tag"))
         self.register_command(
             core.command.Command("list_tags", self.handle_list_tags_command, 0, None,
-                "Kilistazza a broadcast-sytem tageket"))
+                "Lists all broadcast tags."))
 
         self.clients = []
 
@@ -106,7 +106,7 @@ class ModuleMain(core.module.Module):
             return
 
         self.config["tag_channels"][tag].append(tag_channel)
-        self.bot.send_message(target, "Hozzaadva.")
+        self.bot.send_message(target, "Added.")
         self.write_module_config(self.config)
 
     def handle_del_tag_command(self, source, target, was_pm, args):
@@ -124,7 +124,7 @@ class ModuleMain(core.module.Module):
         if len(self.config["tag_channels"][tag]) == 0:
             del self.config["tag_channels"][tag]
 
-        self.bot.send_message(target, "Torolve.")
+        self.bot.send_message(target, "Deleted.")
         self.write_module_config(self.config)
 
     def handle_list_tags_command(self, source, target, was_pm, args):
@@ -139,4 +139,4 @@ class ModuleMain(core.module.Module):
             message.append("%s - %s" % (tag, ", ".join(tmp)))
 
         final_message = ", ".join(message)
-        self.bot.send_message(target, "Tagek: %s\n" % final_message)
+        self.bot.send_message(target, "List of tags: %s\n" % final_message)

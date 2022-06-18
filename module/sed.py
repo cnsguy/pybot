@@ -95,11 +95,11 @@ class ModuleMain(core.module.Module):
     
     def handle_sed_command(self, source, target, was_pm, args):
         if was_pm:
-            self.bot.send_message(target, "PMben minek?")
+            self.bot.send_message(target, "Why would you use sed in this PM...?")
             return
 
         if target not in self.message_backlog:
-            self.bot.send_message(target, "Ide meg senki sem irt semmit.")
+            self.bot.send_message(target, "No messages in backlog yet. (Backlog is in-memory only)")
             return
         
         channel_backlog = self.message_backlog[target]
@@ -107,14 +107,14 @@ class ModuleMain(core.module.Module):
         user_backlog = channel_backlog.get_user_backlog(user)
 
         if user_backlog is None:
-            self.bot.send_message(target, "Nem is irtal meg semmit..")
+            self.bot.send_message(target, "No messages in your personal backlog yet.")
             return
 
         if args[0].startswith("-"):
             try:
                 offset = int(args[0])
             except ValueError:
-                self.bot.send_message(target, "Ezt a szamot nem ismerem")
+                self.bot.send_message(target, "Cannot parse number.")
                 return
             
             args.pop(0)
@@ -124,26 +124,26 @@ class ModuleMain(core.module.Module):
         result = parse_sed(" ".join(args))
 
         if result is None:
-            self.bot.send_message(target, "Te mit tesa?")
+            self.bot.send_message(target, "Cannot parse sed expression.")
             return
 
         if abs(offset) > len(user_backlog):
-            self.bot.send_message(target, "Jo nagy offset, de nem")
+            self.bot.send_message(target, "Offset larger than the size of backlog.")
             return
 
         pattern, replacement, count = result
         message = user_backlog[offset]
         result = re_sub(pattern, replacement, message, count = count)
-        result = "%s erre gondolt: %s" % (user.nick, result)
+        result = "%s meant: %s" % (user.nick, result)
         self.bot.send_message(target, result)
 
     def handle_gsed_command(self, source, target, was_pm, args):
         if was_pm:
-            self.bot.send_message(target, "PMben minek?")
+            self.bot.send_message(target, "Why would you use sed in this PM...?")
             return
 
         if target not in self.message_backlog:
-            self.bot.send_message(target, "Ide meg senki sem irt semmit.")
+            self.bot.send_message(target, "No messages in backlog yet. (Backlog is in-memory only)")
             return
 
         channel_backlog = self.message_backlog[target].get_backlog()
@@ -152,7 +152,7 @@ class ModuleMain(core.module.Module):
             try:
                 offset = int(args[0])
             except ValueError:
-                self.bot.send_message(target, "Ezt a szamot nem ismerem")
+                self.bot.send_message(target, "Cannot parse number.")
                 return
             
             args.pop(0)
@@ -160,17 +160,17 @@ class ModuleMain(core.module.Module):
             offset = -1
 
         if abs(offset) > len(channel_backlog):
-            self.bot.send_message(target, "Jo nagy offset, de nem")
+            self.bot.send_message(target, "Offset larger than the size of backlog.")
             return
 
         result = parse_sed(" ".join(args))
 
         if result is None:
-            self.bot.send_message(target, "Te mit tesa?")
+            self.bot.send_message(target, "Cannot parse sed expression.")
             return
 
         pattern, replacement, count = result
         orig_nick, message = channel_backlog[offset]
         result = re_sub(pattern, replacement, message, count = count)
-        result = "%s szerint %s erre gondolt: %s" % (source.nick, orig_nick, result)
+        result = "%s thinks %s meant: %s" % (source.nick, orig_nick, result)
         self.bot.send_message(target, result)

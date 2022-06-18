@@ -51,12 +51,12 @@ class ModuleMain(core.module.Module):
         pattern = args[0]
 
         if pattern in self.config["ignored"]:
-            self.bot.send_message(target, "Mar ignoralva van.")
+            self.bot.send_message(target, "Already ignored.")
             return
 
         self.config["ignored"].append(pattern)
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Ignoralva.")
+        self.bot.send_message(target, "Ignored.")
 
     def handle_list_ignores_command(self, source, target, was_pm, args):
         message = []
@@ -64,16 +64,16 @@ class ModuleMain(core.module.Module):
         for pattern in self.config["ignored"]:
             message.append(pattern)
 
-        final_message = "Ignoralva:\n%s" % "\n".join(message)
+        final_message = "List of ignores:\n%s" % "\n".join(message)
         self.bot.send_message(target, final_message)
 
     def handle_del_ignore_command(self, source, target, was_pm, args):
         pattern = args[0]
 
         if pattern not in self.config["ignored"]:
-            self.bot.send_message(target, "Nincs ilyen pattern.")
+            self.bot.send_message(target, "No such pattern.")
             return
 
         self.config["ignored"].remove(pattern)
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Unignoralva.")
+        self.bot.send_message(target, "Unignored.")

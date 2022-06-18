@@ -87,7 +87,7 @@ class BotInstance:
             try:
                 self.load_module(module_name)
             except Exception as err:
-                stderr.write("A %s modul betoltese sikertelen: %s\n" % (module_name, err))
+                stderr.write("Loading module '%s' failed: %s\n" % (module_name, err))
 
     def inject_module(self, module_name, constructor):
         assert(module_name not in self.module_instances)

@@ -14,13 +14,13 @@ class ModuleMain(core.module.Module):
         self.register_packet_handler("PRIVMSG", self.handle_privmsg)
         self.register_command(
             core.command.Command("word_trigger_add", self.handle_add_command, 2, "<sender_pattern> <word_pattern> <response>",
-                "Hozzaad egy uj word trigger patternt.", "word_trigger.word_trigger_add"))
+                "Adds a new word trigger pattern.", "word_trigger.word_trigger_add"))
         self.register_command(
             core.command.Command("word_trigger_del", self.handle_del_command, 2, "<sender_pattern> <word_pattern> <response>",
-                "Torol egy word trigger patternt.", "word_trigger.word_trigger_del"))
+                "Deletes a word trigger pattern.", "word_trigger.word_trigger_del"))
         self.register_command(
             core.command.Command("word_trigger_list", self.handle_list_command, 0, None,
-                "Kilistazza a word trigger patterneket."))
+                "Lists current word trigger patterns."))
 
     def handle_privmsg(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
@@ -44,12 +44,12 @@ class ModuleMain(core.module.Module):
         }
 
         if saved_object in self.config["patterns"]:
-            self.bot.send_message(target, "Mar letezik ilyen pattern.")
+            self.bot.send_message(target, "Pattern already exists.")
             return
 
         self.config["patterns"].append(saved_object)
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Pattern hozzaadva.")
+        self.bot.send_message(target, "Pattern added.")
 
     def handle_del_command(self, source, target, was_pm, args):
         sender_pattern = args[0]
@@ -64,12 +64,12 @@ class ModuleMain(core.module.Module):
         try:
             idx = self.config["patterns"].index(saved_object)
         except ValueError:
-            self.bot.send_message(target, "Nincs ilyen pattern.")
+            self.bot.send_message(target, "No such pattern.")
             return
         
         del self.config["patterns"][idx]
         self.write_module_config(self.config)
-        self.bot.send_message(target, "Pattern torolve.")
+        self.bot.send_message(target, "Pattern deleted.")
 
     def handle_list_command(self, source, target, was_pm, args):
         message = []
@@ -77,5 +77,4 @@ class ModuleMain(core.module.Module):
         for entry in self.config["patterns"]:
             message.append("%s %s %s" % (entry["sender_pattern"], entry["word_pattern"], entry["response"]))
 
-        final_message = "Triggerek:\n%s" % "\n".join(message)
-        self.bot.send_message(target, final_message)
+        self.bot.send_message(target, "Triggers:\n%s" % "\n".join(message))

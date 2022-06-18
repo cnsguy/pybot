@@ -7,8 +7,8 @@ class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
         self.register_command(
-            core.command.Command("help", self.handle_help_command, 0, "(<parancs>)", 
-                "Kiirja a parancs hasznalatat, vagy ha nincs parancs megadva, a parancslistat."))
+            core.command.Command("help", self.handle_help_command, 0, "(<command>)", 
+                "Displays help for the specified command, or if no command is specified, lists all available ones."))
 
     def handle_help_command(self, source, target, was_pm, args):
         if len(args) > 0:
@@ -22,7 +22,7 @@ class ModuleMain(core.module.Module):
                     break
 
             if command is None:
-                self.bot.send_message(target, "Nincs ilyen parancs.")
+                self.bot.send_message(target, "No such command exists.")
             else:
                 command_help = command.format_help()
                 self.bot.send_message(target, self.bot.command_prefix + command_help)
