@@ -2,4 +2,5 @@
 Simple python IRC bot with barely any features and meh code for personal use.
 
 ## How to run
-Please don't.
+./pybot.py &lt;your config file&gt; \
+An example_config.json is provided.
