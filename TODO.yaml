@@ -1,0 +1,8 @@
+modules:
+  - repeat module
+  - choice module
+
+core:
+  - lisp-like command parsing
+  - refactor BotInstance into inheriting a basic IrcClient
+  - channel joining / saving should be BotInstance core stuff
