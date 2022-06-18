@@ -1,6 +1,7 @@
 modules:
   - repeat module
   - choice module
+  - date module (play back message at specific date)
 
 core:
   - lisp-like command parsing
