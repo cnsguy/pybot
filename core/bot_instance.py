@@ -12,6 +12,8 @@ from enum import Enum
 from time import sleep
 from hashlib import sha256
 from re import match as re_match
+from ssl import create_default_context as ssl_create_default_context, SSLContext, CERT_NONE
+from socket import socket, AF_INET, SOCK_STREAM
 
 class BotInstanceState(Enum):
     DISCONNECTED = 0
@@ -19,8 +21,16 @@ class BotInstanceState(Enum):
     CONNECTED = 2
     STOPPING = 3
 
+ssl_default_context = ssl_create_default_context()
+
+ssl_useless_context = SSLContext() 
+ssl_useless_context.verify_mode = CERT_NONE
+ssl_useless_context.check_hostname = False
+
 class BotInstance:
-    def __init__(self, nick, ident, real_name, host, port, db_name, command_prefix, init_channels, debug_channel, module_names):
+    def __init__(self, nick, ident, real_name, host, port, use_ssl, verify_ssl, db_name, command_prefix,
+        init_channels, debug_channel, module_names):
+
         # Config
         self.nick = nick
         self.ident = ident
@@ -31,10 +41,16 @@ class BotInstance:
         self.port = port
         self.debug_channel = debug_channel
         self.init_channels = init_channels
-        # TODO use_ssl config field and ssl support
 
         # State
-        self.socket = core.irc_socket.IrcSocket()
+        if use_ssl:
+            context = ssl_default_context if verify_ssl else ssl_useless_context
+            sock_to_wrap = context.wrap_socket(socket(AF_INET, SOCK_STREAM), server_hostname = host)
+        else:
+            sock_to_wrap = None
+
+        self.socket = core.irc_socket.IrcSocket(sock_to_wrap)
+
         self.my_user = core.user.User(self.nick, self.ident, None, self.real_name)
         self.users = {self.nick: self.my_user} # Map of user nick -> User obj
         self.channels = {} # Map of channel name -> Channel obj

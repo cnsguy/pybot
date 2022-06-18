@@ -21,6 +21,8 @@ def main():
             config.get("real_name", "ark's simple python IRC bot"),
             config["host"],
             config["port"],
+            config.get("use_ssl", False),
+            config.get("verify_ssl", True),
             config["db_name"],
             config.get("command_prefix", "."),
             config.get("channels", []),

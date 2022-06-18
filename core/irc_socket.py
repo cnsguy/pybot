@@ -2,8 +2,8 @@ import core.irc_packet
 import core.line_socket
 
 class IrcSocket(core.line_socket.LineSocket):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, wrap = None):
+        super().__init__(wrap)
 
     # Reads and decodes a single IrcPacket from the server
     # NOTE: This blocks until enough data is available
