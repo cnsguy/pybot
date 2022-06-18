@@ -4,6 +4,8 @@
     "real_name": "pybot",
     "db_name": "Libera",
     "host": "irc.libera.chat",
+    "channels": ["#pybot-debug"],
+    "debug_channel": "#pybot-debug",
     "command_prefix": "!",
     "port": 6667,
     "modules": [

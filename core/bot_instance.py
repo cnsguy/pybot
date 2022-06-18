@@ -20,7 +20,7 @@ class BotInstanceState(Enum):
     STOPPING = 3
 
 class BotInstance:
-    def __init__(self, nick, ident, real_name, host, port, db_name, command_prefix, debug_channel, module_names):
+    def __init__(self, nick, ident, real_name, host, port, db_name, command_prefix, init_channels, debug_channel, module_names):
         # Config
         self.nick = nick
         self.ident = ident
@@ -30,6 +30,7 @@ class BotInstance:
         self.host = host
         self.port = port
         self.debug_channel = debug_channel
+        self.init_channels = init_channels
         # TODO use_ssl config field and ssl support
 
         # State
@@ -270,6 +271,9 @@ class BotInstance:
 
     def handle_connected(self, source, args):
         self.state = BotInstanceState.CONNECTED
+
+        for channel in self.init_channels:
+            self.send_raw_line("JOIN %s" % channel)
 
     def handle_nick_list(self, source, args):
         channel_name = args[2]

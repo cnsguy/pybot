@@ -23,6 +23,7 @@ def main():
             config["port"],
             config["db_name"],
             config.get("command_prefix", "."),
+            config.get("channels", []),
             config.get("debug_channel"),
             config.get("modules", [])
         )
