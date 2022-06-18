@@ -314,12 +314,17 @@ class BotInstance:
         if user.real_name is None:
             user.real_name = real_name
 
+    def queue_whois_lookup(self, nick, callback):
+        if nick not in self.whois_callbacks:
+            self.whois_callbacks[nick] = []
+            self.send_raw_line("WHOIS %s" % nick)
+
+        self.whois_callbacks[nick].append(callback)
+
     def handle_whois_response(self, source, args):
         nick = args[1]
 
-        if nick not in self.users:
-            return
-
+        # Disgusting blocking garbage
         response_list = self.socket.read_irc_packets_until("318")
         authed_as = None
 
@@ -384,13 +389,13 @@ class BotInstance:
 
         def account_ready(authed_as):
             if authed_as is None:
-                self.send_message(reply_target, "A %s parancs hasznalatahoz be kell jelentkezned." % command.name)
+                self.send_message(reply_target, "You need to log in to use the '%s' command." % command.name)
                 return
 
             account = self.get_account_data(authed_as)
 
             if not account["is_admin"] and command.acl_key not in account["acl_rights"]:
-                self.send_message(reply_target, "Nincs jogosultsagod a %s parancs hasznalatahoz." % command.name)
+                self.send_message(reply_target, "You have no permission to use the '%s' command." % command.name)
                 return
 
             try:
@@ -399,11 +404,7 @@ class BotInstance:
                 self.write_exception("Error processing privileged command %s" % (self.command_prefix + command.name), err)
 
         # Queue an account lookup
-        if source.nick not in self.whois_callbacks:
-            self.whois_callbacks[source.nick] = []
-            self.send_raw_line("WHOIS %s" % source.nick)
-
-        self.whois_callbacks[source.nick].append(account_ready)
+        self.queue_whois_lookup(source.nick, account_ready)
 
     def try_process_command(self, source, reply_target, message, is_pm):
         # Early return if we don't support commands at all
