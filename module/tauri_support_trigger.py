@@ -60,7 +60,7 @@ class ModuleMain(core.module.Module):
 
     def send_available_message(self, target, available):
         unavailable = [x for x in self.support_entries if x not in available]
-        self.bot.send_message(target, "Support currently available | Jelenleg elérhető:")
+        self.bot.send_message(target, "Support currently available | Jelenleg elérhető (Central European Time):")
 
         for entry in available:
             self.bot.send_message(target, entry.format_line())
