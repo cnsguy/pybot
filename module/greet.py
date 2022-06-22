@@ -11,7 +11,7 @@ class ModuleMain(core.module.Module):
             "patterns": {} # Map of greeting: greetings
         })
 
-        self.register_packet_handler("JOIN", self.handle_join)
+        self.register_bot_event("core.other_join", self.handle_join)
         self.register_command(
             core.command.Command("add_greeting", self.handle_add_greeting_command, 2, "<pattern> <greeting>",
                 "Sets the greeting for the specified pattern.", "greet.add_greeting"))
@@ -22,19 +22,16 @@ class ModuleMain(core.module.Module):
             core.command.Command("del_greeting", self.handle_del_greeting_command, 1, "<pattern>",
                 "Deletes the specified greeting.", "greet.del_greeting"))
 
-    def handle_join(self, source, args):
-        channel_name = args[0]
+    def handle_join(self, user_source, channel, user):
         patterns = self.config["patterns"]
-        user_source = core.irc_packet.IrcUserSource.from_source_string(source)
 
         for pattern, entry in patterns.items():
-            if re_match(pattern, source):
-                self.bot.send_message(channel_name, "%s: %s" % (user_source.nick, entry))
+            if re_match(pattern, user_source.to_source_string()):
+                self.bot.send_message(channel.name, "%s: %s" % (user_source.nick, entry))
 
     def handle_add_greeting_command(self, source, target, was_pm, args):
         pattern = args[0]
         greeting = " ".join(args[1:])
-
         self.config["patterns"][pattern] = greeting
         self.write_module_config(self.config)
         self.bot.send_message(target, "Greeting added.")
