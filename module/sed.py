@@ -84,7 +84,7 @@ class ModuleMain(core.module.Module):
 
         self.message_backlog[channel_name].add_message(user, message)
 
-    def handle_self_part(self, user_source, channel, user):
+    def handle_self_part(self, user_source, channel):
         del self.message_backlog[channel.name]
 
     def handle_other_part(self, user_source, channel, user):

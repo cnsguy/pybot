@@ -184,7 +184,7 @@ class BotInstance:
             user = self.my_user
             channel.add_user(nick)
             user.add_channel(channel)
-            self.emit_event("core.self_join", user_source, channel, user)
+            self.emit_event("core.self_join", user_source, channel)
             return
 
         # Otherwise, it has to be someone else
@@ -212,7 +212,7 @@ class BotInstance:
 
         if nick == self.nick:
             # It was us who parted the channel
-            self.emit_event("core.self_part", user_source, channel, user)
+            self.emit_event("core.self_part", user_source, channel)
             to_delete = []
 
             # Remove the channel entry from all user entries
