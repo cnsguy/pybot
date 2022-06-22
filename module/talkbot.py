@@ -13,7 +13,7 @@ class ModuleMain(core.module.Module):
             "messages": []
         })
 
-        self.register_packet_handler("PRIVMSG", self.handle_privmsg)
+        self.register_bot_event("message", self.handle_message)
         self.register_command(
             core.command.Command("talk_ignore", self.handle_add_ignore_command, 1, "<pattern>",
                 "<pattern>", "talk.add_ignore"))
@@ -33,19 +33,18 @@ class ModuleMain(core.module.Module):
 
         return choice(self.config["messages"])
 
-    def handle_privmsg(self, source, args):
-        user_source = core.irc_packet.IrcUserSource.from_source_string(source)
-        target = user_source.nick if args[0] == self.bot.nick else args[0]
-        message = args[1]
+    def handle_message(self, user_source, reply_target, is_pm, message):
+        if is_pm:
+            return
 
         if not message.startswith(self.bot.nick + ":"):
             return
 
         for pattern in self.config["ignored"]:
-            if re_match(pattern, source):
+            if re_match(pattern, user_source.to_source_string()):
                 return
 
-        self.bot.send_message(target, self.run_talk(message))
+        self.bot.send_message(reply_target, self.run_talk(message))
 
     def handle_add_ignore_command(self, source, target, was_pm, args):
         pattern = args[0]
