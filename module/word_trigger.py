@@ -11,7 +11,7 @@ class ModuleMain(core.module.Module):
             "patterns": []
         })
 
-        self.register_packet_handler("PRIVMSG", self.handle_privmsg)
+        self.register_bot_event("message", self.handle_message)
         self.register_command(
             core.command.Command("word_trigger_add", self.handle_add_command, 2, "<sender_pattern> <word_pattern> <response>",
                 "Adds a new word trigger pattern.", "word_trigger.word_trigger_add"))
@@ -22,16 +22,15 @@ class ModuleMain(core.module.Module):
             core.command.Command("word_trigger_list", self.handle_list_command, 0, None,
                 "Lists current word trigger patterns."))
 
-    def handle_privmsg(self, source, args):
-        user_source = core.irc_packet.IrcUserSource.from_source_string(source)
-        target = user_source.nick if args[0] == self.bot.nick else args[0]
-        message = args[1]
+    def handle_message(self, user_source, reply_target, is_pm, message):
+        if is_pm:
+            return
 
         for entry in self.config["patterns"]:
-            if re_match(entry["sender_pattern"], source):
+            if re_match(entry["sender_pattern"], user_source.to_source_string()):
                 for match in re_finditer(entry["word_pattern"], message):
                     start, end = match.span()
-                    self.bot.send_message(target, re_sub(entry["word_pattern"], entry["response"], message[start:end]))
+                    self.bot.send_message(reply_target, re_sub(entry["word_pattern"], entry["response"], message[start:end]))
 
     def handle_add_command(self, source, target, was_pm, args):
         sender_pattern = args[0]
