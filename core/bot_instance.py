@@ -184,6 +184,7 @@ class BotInstance:
             user = self.my_user
             channel.add_user(nick)
             user.add_channel(channel)
+            self.emit_bot_event("core.self_join", user_source, channel, user)
             return
 
         # Otherwise, it has to be someone else
@@ -200,6 +201,7 @@ class BotInstance:
 
         # Queue who check for nick
         self.send_raw_line("WHO %s" % nick)
+        self.emit_bot_event("core.other_join", user_source, channel, user)
 
     def handle_part(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
