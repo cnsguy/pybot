@@ -11,7 +11,7 @@ class ModuleMain(core.module.Module):
             "patterns": {} # Map of greeting: greetings
         })
 
-        self.register_bot_event("core.other_join", self.handle_join)
+        self.register_event("core.other_join", self.handle_join)
         self.register_command(
             core.command.Command("add_greeting", self.handle_add_greeting_command, 2, "<pattern> <greeting>",
                 "Sets the greeting for the specified pattern.", "greet.add_greeting"))

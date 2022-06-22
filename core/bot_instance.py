@@ -128,9 +128,9 @@ class BotInstance:
         del self.module_instances[module_name]
         del sys_modules["module.%s" % module_name]
 
-    def emit_bot_event(self, name, *args):
+    def emit_event(self, name, *args):
         for _, module in self.module_instances.items():
-            module.handle_bot_event(name, *args)
+            module.handle_event(name, *args)
 
     def send_raw_line(self, line):
         return self.socket.send_raw_line(line)
@@ -157,11 +157,11 @@ class BotInstance:
             self.privmsg_queue.append((target, line))
 
     def add_user(self, user):
-        self.emit_bot_event("user.new", user)
+        self.emit_event("user.new", user)
         self.users[user.nick] = user
 
     def delete_user(self, user):
-        self.emit_bot_event("user.delete", user)
+        self.emit_event("user.delete", user)
         del self.users[user.nick]
     
     def handle_ping(self, source, args):
@@ -184,7 +184,7 @@ class BotInstance:
             user = self.my_user
             channel.add_user(nick)
             user.add_channel(channel)
-            self.emit_bot_event("core.self_join", user_source, channel, user)
+            self.emit_event("core.self_join", user_source, channel, user)
             return
 
         # Otherwise, it has to be someone else
@@ -201,7 +201,7 @@ class BotInstance:
 
         # Queue who check for nick
         self.send_raw_line("WHO %s" % nick)
-        self.emit_bot_event("core.other_join", user_source, channel, user)
+        self.emit_event("core.other_join", user_source, channel, user)
 
     def handle_part(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
@@ -212,7 +212,7 @@ class BotInstance:
 
         if nick == self.nick:
             # It was us who parted the channel
-            self.emit_bot_event("core.self_part", user_source, channel, user)
+            self.emit_event("core.self_part", user_source, channel, user)
             to_delete = []
 
             # Remove the channel entry from all user entries
@@ -236,7 +236,7 @@ class BotInstance:
             del self.channels[channel_name]
         else:
             # Someone else parted the channel
-            self.emit_bot_event("core.other_part", user_source, channel, user)
+            self.emit_event("core.other_part", user_source, channel, user)
             user.remove_channel(channel_name)
             channel.remove_user(user.nick)
 
@@ -466,7 +466,7 @@ class BotInstance:
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
 
-        self.emit_bot_event("core.message", user_source, reply_target, is_pm, message)
+        self.emit_event("core.message", user_source, reply_target, is_pm, message)
         self.try_process_command(user_source, reply_target, message, is_pm)
 
     def handle_notice(self, source, args):
@@ -474,13 +474,13 @@ class BotInstance:
         message = args[1]
 
         if "!" not in source:
-            self.emit_bot_event("core.server_notice", source, channel_name, message)
+            self.emit_event("core.server_notice", source, channel_name, message)
             return
 
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
-        self.emit_bot_event("core.notice", user_source, reply_target, is_pm, message)
+        self.emit_event("core.notice", user_source, reply_target, is_pm, message)
 
     def handle_nick_in_use(self, source, args):
         if self.state != BotInstanceState.AUTHING:
@@ -507,13 +507,6 @@ class BotInstance:
                 self.packet_handlers[packet.command](packet.source, packet.args)
         except Exception as err:
             self.write_exception("Error processing %s packet in global" % packet.command, err)
-
-        # Handle packet events in modules
-        for mod_name, mod_instance in self.module_instances.items():
-            try:
-                mod_instance.handle_packet(packet)
-            except Exception as err:
-                self.write_exception("Error processing %s packet in module %s" % (packet.command, mod_name), err)
 
     def run(self):
         self.privmsg_thread.start()

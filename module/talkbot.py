@@ -13,7 +13,7 @@ class ModuleMain(core.module.Module):
             "messages": []
         })
 
-        self.register_bot_event("core.message", self.handle_message)
+        self.register_event("core.message", self.handle_message)
         self.register_command(
             core.command.Command("talk_ignore", self.handle_add_ignore_command, 1, "<pattern>",
                 "<pattern>", "talk.add_ignore"))

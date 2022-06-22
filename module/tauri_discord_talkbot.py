@@ -6,7 +6,7 @@ import core.irc_packet
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
-        self.register_bot_event("core.message", self.handle_message)
+        self.register_event("core.message", self.handle_message)
 
     def handle_message(self, user_source, reply_target, is_pm, message):
         if user_source.nick != "discord2irc" or is_pm:

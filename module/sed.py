@@ -63,9 +63,9 @@ class ModuleMain(core.module.Module):
         self.register_command(
             core.command.Command("gsed", self.handle_gsed_command, 1, "<pattern>",
                 "Global sed."))
-        self.register_bot_event("core.message", self.handle_message)
-        self.register_bot_event("core.self_part", self.handle_self_part)
-        self.register_bot_event("core.other_part", self.handle_other_part)
+        self.register_event("core.message", self.handle_message)
+        self.register_event("core.self_part", self.handle_self_part)
+        self.register_event("core.other_part", self.handle_other_part)
 
     def handle_message(self, source, reply_target, was_pm, message):
         if was_pm or message.startswith(self.bot.command_prefix):

@@ -11,7 +11,7 @@ class ModuleMain(core.module.Module):
             "patterns": []
         })
 
-        self.register_bot_event("core.message", self.handle_message)
+        self.register_event("core.message", self.handle_message)
         self.register_command(
             core.command.Command("word_trigger_add", self.handle_add_command, 2, "<sender_pattern> <word_pattern> <response>",
                 "Adds a new word trigger pattern.", "word_trigger.word_trigger_add"))
