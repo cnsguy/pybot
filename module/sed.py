@@ -64,7 +64,8 @@ class ModuleMain(core.module.Module):
             core.command.Command("gsed", self.handle_gsed_command, 1, "<pattern>",
                 "Global sed."))
         self.register_bot_event("core.message", self.handle_message)
-        self.register_packet_handler("PART", self.handle_part)
+        self.register_bot_event("core.self_part", self.handle_self_part)
+        self.register_bot_event("core.other_part", self.handle_other_part)
 
     def handle_message(self, source, reply_target, was_pm, message):
         if was_pm or message.startswith(self.bot.command_prefix):
@@ -83,15 +84,16 @@ class ModuleMain(core.module.Module):
 
         self.message_backlog[channel_name].add_message(user, message)
 
-    def handle_part(self, source, args):
-        channel_name = args[0]
-        user_source = core.irc_packet.IrcUserSource.from_source_string(source)
-        user = self.bot.users[user_source.nick]
+    def handle_self_part(self, user_source, channel, user):
+        del self.message_backlog[channel.name]
 
-        if channel_name not in self.message_backlog:
+    def handle_other_part(self, user_source, channel, user):
+        user = self.bot.users[user.nick]
+
+        if channel.name not in self.message_backlog:
             return
 
-        self.message_backlog[channel_name].flush_user(user)
+        self.message_backlog[channel.name].flush_user(user)
     
     def handle_sed_command(self, source, target, was_pm, args):
         if was_pm:
