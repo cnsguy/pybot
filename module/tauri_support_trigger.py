@@ -44,7 +44,7 @@ class ModuleMain(core.module.Module):
 
         self.users_already_informed = set()
         self.register_bot_event("user.delete", self.drop_informed_entry)
-        self.register_bot_event("message", self.handle_message)
+        self.register_bot_event("core.message", self.handle_message)
     
     def drop_informed_entry(self, user):
         if user not in self.users_already_informed:

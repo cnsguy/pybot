@@ -466,7 +466,7 @@ class BotInstance:
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
 
-        self.emit_bot_event("message", user_source, reply_target, is_pm, message)
+        self.emit_bot_event("core.message", user_source, reply_target, is_pm, message)
         self.try_process_command(user_source, reply_target, message, is_pm)
 
     def handle_notice(self, source, args):
@@ -474,13 +474,13 @@ class BotInstance:
         message = args[1]
 
         if "!" not in source:
-            self.emit_bot_event("server_notice", source, channel_name, message)
+            self.emit_bot_event("core.server_notice", source, channel_name, message)
             return
 
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
-        self.emit_bot_event("notice", user_source, reply_target, is_pm, message)
+        self.emit_bot_event("core.notice", user_source, reply_target, is_pm, message)
 
     def handle_nick_in_use(self, source, args):
         if self.state != BotInstanceState.AUTHING:

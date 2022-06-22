@@ -63,7 +63,7 @@ class ModuleMain(core.module.Module):
         self.register_command(
             core.command.Command("gsed", self.handle_gsed_command, 1, "<pattern>",
                 "Global sed."))
-        self.register_bot_event("message", self.handle_message)
+        self.register_bot_event("core.message", self.handle_message)
         self.register_packet_handler("PART", self.handle_part)
 
     def handle_message(self, source, reply_target, was_pm, message):
