@@ -25,6 +25,9 @@ class IrcUserSource:
         nick, rest  = source_string.split("!")
         ident, host = rest.split("@")
         return IrcUserSource(nick, ident, host)
+    
+    def to_source_string(self):
+        return "%s!%s@%s" % (self.nick, self.ident, self.host)
 
 class IrcPacket:
     def __init__(self, source, command, args):
