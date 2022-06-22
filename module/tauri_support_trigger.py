@@ -65,10 +65,11 @@ class ModuleMain(core.module.Module):
         for entry in available:
             self.bot.send_message(target, entry.format_line())
 
-        self.bot.send_message(target, "Currently not available | Jelenleg nem elérhető:")
+        if len(unavailable) > 0:
+            self.bot.send_message(target, "Currently not available | Jelenleg nem elérhető:")
 
-        for entry in unavailable:
-            self.bot.send_message(target, entry.format_line())
+            for entry in unavailable:
+                self.bot.send_message(target, entry.format_line())
 
     def collect_available(self):
         results = []
