@@ -145,15 +145,14 @@ class BotInstance:
 
         print("[bot_instance] stopping message queue thread")
 
-    # TODO break long messages
     def send_message(self, target, message):
-        long_marker = "..."
-        max_len = 400 - len(long_marker) # XXX
+        max_len = 300 # XXX, should be based on server info instead
 
         for line in message.split("\n"):
-            if len(line) > max_len:
-                line = line[:max_len]
-                line += "..."
+            while len(line) > max_len:
+                part = line[:max_len]
+                self.privmsg_queue.append((target, part))
+                line = line[max_len:]
 
             self.privmsg_queue.append((target, line))
 
