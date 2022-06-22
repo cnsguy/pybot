@@ -17,7 +17,7 @@ class SupportEntry:
         self.languages = languages
 
     def format_line(self):
-        return "%d:00-%d:00 %s (%s)" % (self.start_hour, self.end_hour, escape_nick(self.nick), ", ".join(self.languages))
+        return "%d:00-%d:00 CET %s (%s)" % (self.start_hour, self.end_hour, escape_nick(self.nick), ", ".join(self.languages))
 
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
@@ -53,14 +53,14 @@ class ModuleMain(core.module.Module):
         self.users_already_informed.remove(user)
 
     def send_unavailable_message(self, target):
-        self.bot.send_message(target, "Support is available on workdays | Support elérhető munkanapokon (Central European Time):")
+        self.bot.send_message(target, "Support is available on workdays | Support elérhető munkanapokon:")
 
         for entry in self.support_entries:
             self.bot.send_message(target, entry.format_line())
 
     def send_available_message(self, target, available):
         unavailable = [x for x in self.support_entries if x not in available]
-        self.bot.send_message(target, "Support currently available | Jelenleg elérhető (Central European Time):")
+        self.bot.send_message(target, "Support currently available | Jelenleg elérhető:")
 
         for entry in available:
             self.bot.send_message(target, entry.format_line())
