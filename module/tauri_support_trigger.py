@@ -41,6 +41,9 @@ class ModuleMain(core.module.Module):
         self.register_command(
             core.command.Command("support_trigger_list", self.handle_list_command, 0, None,
                 "Lists current support trigger patterns."))
+        self.register_command(
+            core.command.Command("support", self.handle_support_command, 0, None,
+                "Manual support message trigger."))
 
         self.users_already_informed = set()
         self.register_event("user.delete", self.drop_informed_entry)
@@ -52,21 +55,19 @@ class ModuleMain(core.module.Module):
 
         self.users_already_informed.remove(user)
 
-    def send_unavailable_message(self, target):
-        self.bot.send_message(target, "Support is available on workdays | Support elérhető munkanapokon:")
-
-        for entry in self.support_entries:
-            self.bot.send_message(target, entry.format_line())
-
-    def send_available_message(self, target, available):
+    def send_message(self, target):
+        available = self.collect_available()
         unavailable = [x for x in self.support_entries if x not in available]
-        self.bot.send_message(target, "Support currently available | Jelenleg elérhető:")
+        self.bot.send_message(target, "Support is available on workdays | Munkanapokon van support.")
 
-        for entry in available:
-            self.bot.send_message(target, entry.format_line())
+        if len(available) > 0:
+            self.bot.send_message(target, "Currently available support staff | Jelenleg elérhető:")
+
+            for entry in available:
+                self.bot.send_message(target, entry.format_line())
 
         if len(unavailable) > 0:
-            self.bot.send_message(target, "Currently not available | Jelenleg nem elérhető:")
+            self.bot.send_message(target, "Currently unavailable support staff | Jelenleg nem elérhető:")
 
             for entry in unavailable:
                 self.bot.send_message(target, entry.format_line())
@@ -85,13 +86,7 @@ class ModuleMain(core.module.Module):
         return results
 
     def support_matched(self, user, target):
-        available = self.collect_available()
-
-        if len(available) > 0:
-            self.send_available_message(target, available)
-        else:
-            self.send_unavailable_message(target)
-
+        self.send_message(target)
         self.users_already_informed.add(user)
 
     def handle_message(self, user_source, reply_target, is_pm, message):
@@ -106,6 +101,7 @@ class ModuleMain(core.module.Module):
         for entry in self.config["patterns"]:
             if re_match(entry, message.lower()):
                 self.support_matched(user, reply_target)
+                return
 
     def handle_add_command(self, source, target, was_pm, args):
         pattern = " ".join(args[0:])
@@ -138,3 +134,6 @@ class ModuleMain(core.module.Module):
             message.append("%s" % entry)
 
         self.bot.send_message(target, "Triggers:\n%s" % "\n".join(message))
+
+    def handle_support_command(self, source, target, was_pm, args):
+        self.send_message(target)
