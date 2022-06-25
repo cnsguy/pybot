@@ -1,4 +1,3 @@
-import core.irc_packet
 class Command:
     def __init__(self, name, handler, min_args, usage, description, acl_key = None):
         self.name = name
@@ -13,10 +12,8 @@ class Command:
 
         if usage is not None:
             return "%s %s - %s" % (self.name, usage, self.description)
+        else:
+            return "%s - %s" % (self.name, self.description)
 
-        # Usage is none
-        return "%s - %s" % (self.name, self.description)
-
-    # Misc
     def execute(self, source, target, was_pm, args):
         self.handler(source, target, was_pm, args)
