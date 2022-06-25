@@ -395,7 +395,7 @@ class BotInstance:
 
         return False
     
-    def run_command(self, command, source, reply_target, is_pm, args):
+    def run_command(self, source, command, reply_target, is_pm, args):
         if len(args) < command.min_args:
             self.send_message(reply_target, self.command_prefix + command.format_help())
             return
@@ -429,6 +429,19 @@ class BotInstance:
         # Queue an account lookup
         self.queue_whois_lookup(source.nick, account_ready)
 
+    def run_command_by_name(self, source, command_name, reply_target, is_pm, args):
+        # Look up and run command in modules
+        for module in self.module_instances.values():
+            if command_name not in module.commands:
+                continue
+
+            command = module.commands[command_name]
+
+            try:
+                self.run_command(source, command, reply_target, is_pm, args)
+            except Exception as err:
+                self.write_exception("Error processing command %s" % (self.command_prefix + command.name), err)
+
     def try_process_command(self, source, reply_target, message, is_pm):
         # Early return if we don't support commands at all
         if self.command_prefix is None:
@@ -446,18 +459,7 @@ class BotInstance:
             return
 
         command_name = args.pop(0)
-
-        # Look up and run command in modules
-        for module in self.module_instances.values():
-            if command_name not in module.commands:
-                continue
-
-            command = module.commands[command_name]
-
-            try:
-                self.run_command(command, source, reply_target, is_pm, args)
-            except Exception as err:
-                self.write_exception("Error processing command %s" % (self.command_prefix + command.name), err)
+        self.run_command_by_name(source, command_name, reply_target, is_pm, args)
 
     def handle_privmsg(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
