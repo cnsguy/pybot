@@ -8,7 +8,7 @@ from re import match as re_match
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
-        self.config = self.read_module_config({
+        self.db = self.read_module_data({
             "ignored": [],
             "messages": []
         })
@@ -27,11 +27,11 @@ class ModuleMain(core.module.Module):
     def run_talk(self, message):
         message = ":".join(message.split(":")[1:]).strip()
 
-        if len(message) > 0 and message not in self.config["messages"]:
-            self.config["messages"].append(message)
-            self.write_module_config(self.config)
+        if len(message) > 0 and message not in self.db["messages"]:
+            self.db["messages"].append(message)
+            self.write_module_data(self.db)
 
-        return choice(self.config["messages"])
+        return choice(self.db["messages"])
 
     def handle_message(self, user_source, reply_target, is_pm, message):
         if is_pm:
@@ -40,7 +40,7 @@ class ModuleMain(core.module.Module):
         if not message.startswith(self.bot.nick + ":"):
             return
 
-        for pattern in self.config["ignored"]:
+        for pattern in self.db["ignored"]:
             if re_match(pattern, user_source.to_source_string()):
                 return
 
@@ -49,18 +49,18 @@ class ModuleMain(core.module.Module):
     def handle_add_ignore_command(self, source, target, was_pm, args):
         pattern = args[0]
 
-        if pattern in self.config["ignored"]:
+        if pattern in self.db["ignored"]:
             self.bot.send_message(target, "Already ignored.")
             return
 
-        self.config["ignored"].append(pattern)
-        self.write_module_config(self.config)
+        self.db["ignored"].append(pattern)
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Ignored.")
 
     def handle_list_ignores_command(self, source, target, was_pm, args):
         message = []
 
-        for pattern in self.config["ignored"]:
+        for pattern in self.db["ignored"]:
             message.append(pattern)
 
         final_message = "List of ignores:\n%s" % "\n".join(message)
@@ -69,10 +69,10 @@ class ModuleMain(core.module.Module):
     def handle_del_ignore_command(self, source, target, was_pm, args):
         pattern = args[0]
 
-        if pattern not in self.config["ignored"]:
+        if pattern not in self.db["ignored"]:
             self.bot.send_message(target, "No such pattern.")
             return
 
-        self.config["ignored"].remove(pattern)
-        self.write_module_config(self.config)
+        self.db["ignored"].remove(pattern)
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Unignored.")

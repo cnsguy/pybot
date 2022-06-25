@@ -23,7 +23,7 @@ class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
 
-        self.config = self.read_module_config({
+        self.db = self.read_module_data({
             "patterns": []
         })
 
@@ -98,7 +98,7 @@ class ModuleMain(core.module.Module):
         if user is None or user in self.users_already_informed:
             return
 
-        for entry in self.config["patterns"]:
+        for entry in self.db["patterns"]:
             if re_match(entry, message.lower()):
                 self.support_matched(user, reply_target)
                 return
@@ -106,31 +106,31 @@ class ModuleMain(core.module.Module):
     def handle_add_command(self, source, target, was_pm, args):
         pattern = " ".join(args[0:])
 
-        if pattern in self.config["patterns"]:
+        if pattern in self.db["patterns"]:
             self.bot.send_message(target, "Pattern already exists.")
             return
 
-        self.config["patterns"].append(pattern)
-        self.write_module_config(self.config)
+        self.db["patterns"].append(pattern)
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern added.")
 
     def handle_del_command(self, source, target, was_pm, args):
         pattern = " ".join(args[0:])
  
         try:
-            idx = self.config["patterns"].index(pattern)
+            idx = self.db["patterns"].index(pattern)
         except ValueError:
             self.bot.send_message(target, "No such pattern.")
             return
         
-        del self.config["patterns"][idx]
-        self.write_module_config(self.config)
+        del self.db["patterns"][idx]
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern deleted.")
 
     def handle_list_command(self, source, target, was_pm, args):
         message = []
 
-        for entry in self.config["patterns"]:
+        for entry in self.db["patterns"]:
             message.append("%s" % entry)
 
         self.bot.send_message(target, "Triggers:\n%s" % "\n".join(message))

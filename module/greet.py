@@ -7,7 +7,7 @@ from re import match as re_match
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
-        self.config = self.read_module_config({
+        self.db = self.read_module_data({
             "patterns": {} # Map of greeting: greetings
         })
 
@@ -23,7 +23,7 @@ class ModuleMain(core.module.Module):
                 "Deletes the specified greeting.", "greet.del_greeting"))
 
     def handle_join(self, user_source, channel, user):
-        patterns = self.config["patterns"]
+        patterns = self.db["patterns"]
 
         for pattern, entry in patterns.items():
             if re_match(pattern, user_source.to_source_string()):
@@ -32,14 +32,14 @@ class ModuleMain(core.module.Module):
     def handle_add_greeting_command(self, source, target, was_pm, args):
         pattern = args[0]
         greeting = " ".join(args[1:])
-        self.config["patterns"][pattern] = greeting
-        self.write_module_config(self.config)
+        self.db["patterns"][pattern] = greeting
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Greeting added.")
 
     def handle_list_greetings_command(self, source, target, was_pm, args):
         message = []
 
-        for pattern, greeting in self.config["patterns"].items():
+        for pattern, greeting in self.db["patterns"].items():
             message.append("%s - %s" % (pattern, greeting))
 
         self.bot.send_message(target, "Greetings:\n%s" % "\n".join(message))
@@ -47,10 +47,10 @@ class ModuleMain(core.module.Module):
     def handle_del_greeting_command(self, source, target, was_pm, args):
         pattern = args[0]
 
-        if pattern not in self.config["patterns"]:
+        if pattern not in self.db["patterns"]:
             self.bot.send_message(target, "No such regex pattern.")
             return
 
-        del self.config["patterns"][pattern]
-        self.write_module_config(self.config)
+        del self.db["patterns"][pattern]
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Greeting deleted.")

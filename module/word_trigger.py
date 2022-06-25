@@ -7,7 +7,7 @@ from re import match as re_match, sub as re_sub, finditer as re_finditer
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
-        self.config = self.read_module_config({
+        self.db = self.read_module_data({
             "patterns": []
         })
 
@@ -26,7 +26,7 @@ class ModuleMain(core.module.Module):
         if is_pm:
             return
 
-        for entry in self.config["patterns"]:
+        for entry in self.db["patterns"]:
             if re_match(entry["sender_pattern"], user_source.to_source_string()):
                 for match in re_finditer(entry["word_pattern"], message):
                     start, end = match.span()
@@ -42,12 +42,12 @@ class ModuleMain(core.module.Module):
             "response": response
         }
 
-        if saved_object in self.config["patterns"]:
+        if saved_object in self.db["patterns"]:
             self.bot.send_message(target, "Pattern already exists.")
             return
 
-        self.config["patterns"].append(saved_object)
-        self.write_module_config(self.config)
+        self.db["patterns"].append(saved_object)
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern added.")
 
     def handle_del_command(self, source, target, was_pm, args):
@@ -61,19 +61,19 @@ class ModuleMain(core.module.Module):
         }
 
         try:
-            idx = self.config["patterns"].index(saved_object)
+            idx = self.db["patterns"].index(saved_object)
         except ValueError:
             self.bot.send_message(target, "No such pattern.")
             return
         
-        del self.config["patterns"][idx]
-        self.write_module_config(self.config)
+        del self.db["patterns"][idx]
+        self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern deleted.")
 
     def handle_list_command(self, source, target, was_pm, args):
         message = []
 
-        for entry in self.config["patterns"]:
+        for entry in self.db["patterns"]:
             message.append("%s %s %s" % (entry["sender_pattern"], entry["word_pattern"], entry["response"]))
 
         self.bot.send_message(target, "Triggers:\n%s" % "\n".join(message))

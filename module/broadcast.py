@@ -9,7 +9,7 @@ from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name, self.on_stop)
-        self.config = self.read_module_config({
+        self.db = self.read_module_data({
             "ip": "127.0.0.1", # don't bind to anything reachable remotely, it can be used for resource exhaustion
             "port": 1234,
             "tag_channels": {}
@@ -29,7 +29,7 @@ class ModuleMain(core.module.Module):
 
         self.accept_sock = socket(AF_INET, SOCK_STREAM)
         self.accept_sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-        self.accept_sock.bind((self.config["ip"], self.config["port"]))
+        self.accept_sock.bind((self.db["ip"], self.db["port"]))
         self.accept_sock.listen(5)
 
         self.recv_thread = Thread(target = self.recv_thread_main, daemon = True)
@@ -38,7 +38,7 @@ class ModuleMain(core.module.Module):
     def broadcast_message(self, tag, should_hl, message):
         print("[broadcast] %s (%d): %s" % (tag, should_hl, message))
 
-        for entry_tag, channels in self.config["tag_channels"].items():
+        for entry_tag, channels in self.db["tag_channels"].items():
             if entry_tag != tag:
                 continue
 
@@ -99,38 +99,38 @@ class ModuleMain(core.module.Module):
         tag = args[0]
         tag_channel = args[1]
 
-        if tag not in self.config["tag_channels"]:
-            self.config["tag_channels"][tag] = []
+        if tag not in self.db["tag_channels"]:
+            self.db["tag_channels"][tag] = []
 
-        if tag_channel in self.config["tag_channels"][tag]:
+        if tag_channel in self.db["tag_channels"][tag]:
             return
 
-        self.config["tag_channels"][tag].append(tag_channel)
+        self.db["tag_channels"][tag].append(tag_channel)
         self.bot.send_message(target, "Added.")
-        self.write_module_config(self.config)
+        self.write_module_data(self.db)
 
     def handle_del_tag_command(self, source, target, was_pm, args):
         tag = args[0]
         tag_channel = args[1]
 
-        if tag not in self.config["tag_channels"]:
+        if tag not in self.db["tag_channels"]:
             return
 
-        if tag_channel not in self.config["tag_channels"][tag]:
+        if tag_channel not in self.db["tag_channels"][tag]:
             return
         
-        self.config["tag_channels"][tag].remove(tag_channel)
+        self.db["tag_channels"][tag].remove(tag_channel)
 
-        if len(self.config["tag_channels"][tag]) == 0:
-            del self.config["tag_channels"][tag]
+        if len(self.db["tag_channels"][tag]) == 0:
+            del self.db["tag_channels"][tag]
 
         self.bot.send_message(target, "Deleted.")
-        self.write_module_config(self.config)
+        self.write_module_data(self.db)
 
     def handle_list_tags_command(self, source, target, was_pm, args):
         message = []
 
-        for tag, channel_names in self.config["tag_channels"].items():
+        for tag, channel_names in self.db["tag_channels"].items():
             tmp = []
 
             for channel_name in channel_names:
