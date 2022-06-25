@@ -1,6 +1,4 @@
 modules:
-  - repeat module
-  - choice module
   - date module (play back message at specific date)
   - fix !help <command>
 
