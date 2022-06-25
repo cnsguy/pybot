@@ -132,11 +132,14 @@ class BotInstance:
         for _, module in self.module_instances.items():
             module.handle_event(name, *args)
 
+    def send_immediately(self, line):
+        self.socket.send_raw_line(line)
+
     def send_thread_main(self):
         while self.state != BotInstanceState.STOPPING:
             if len(self.send_queue) > 0:
                 line = self.send_queue.pop(0)
-                self.socket.send_raw_line(line)
+                self.send_immediately(line)
 
             sleep(1)
 

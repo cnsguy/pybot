@@ -21,9 +21,9 @@ class ModuleMain(core.module.Module):
         reason = " ".join(args)
 
         if len(reason) > 0:
-            self.bot.send_raw_line("QUIT :%s" % reason)
+            self.bot.send_immediately("QUIT :%s" % reason)
         else:
-            self.bot.send_raw_line("QUIT")
+            self.bot.send_immediately("QUIT")
 
         self.bot.disconnect()
 
@@ -31,13 +31,13 @@ class ModuleMain(core.module.Module):
         reason = " ".join(args)
 
         if len(reason) > 0:
-            self.bot.send_raw_line("QUIT :%s" % reason)
+            self.bot.send_immediately("QUIT :%s" % reason)
         else:
-            self.bot.send_raw_line("QUIT")
+            self.bot.send_immediately("QUIT")
 
         self.bot.restart()
 
     def handle_update_command(self, source, target, is_pm, args):
-        self.bot.send_raw_line("QUIT :Updating")
+        self.bot.send_immediately("QUIT :Updating")
         subprocess_run(["git", "pull"])
         self.bot.restart()
