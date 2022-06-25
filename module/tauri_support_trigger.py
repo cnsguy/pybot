@@ -103,7 +103,7 @@ class ModuleMain(core.module.Module):
                 self.support_matched(user, reply_target)
                 return
 
-    def handle_add_command(self, source, target, was_pm, args):
+    def handle_add_command(self, source, target, is_pm, args):
         pattern = " ".join(args[0:])
 
         if pattern in self.db["patterns"]:
@@ -114,7 +114,7 @@ class ModuleMain(core.module.Module):
         self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern added.")
 
-    def handle_del_command(self, source, target, was_pm, args):
+    def handle_del_command(self, source, target, is_pm, args):
         pattern = " ".join(args[0:])
  
         try:
@@ -127,7 +127,7 @@ class ModuleMain(core.module.Module):
         self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern deleted.")
 
-    def handle_list_command(self, source, target, was_pm, args):
+    def handle_list_command(self, source, target, is_pm, args):
         message = []
 
         for entry in self.db["patterns"]:
@@ -135,5 +135,5 @@ class ModuleMain(core.module.Module):
 
         self.bot.send_message(target, "Triggers:\n%s" % "\n".join(message))
 
-    def handle_support_command(self, source, target, was_pm, args):
+    def handle_support_command(self, source, target, is_pm, args):
         self.send_message(target)

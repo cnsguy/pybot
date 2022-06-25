@@ -10,5 +10,5 @@ class ModuleMain(core.module.Module):
             core.command.Command("botname", self.handle_mikrobi_command, 0, None,
                 None))
 
-    def handle_mikrobi_command(self, source, target, was_pm, args):
+    def handle_mikrobi_command(self, source, target, is_pm, args):
         self.bot.send_message(target, "<-")

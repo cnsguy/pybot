@@ -10,7 +10,7 @@ class ModuleMain(core.module.Module):
             core.command.Command("help", self.handle_help_command, 0, "(<command>)", 
                 "Displays help for the specified command, or if no command is specified, lists all available ones."))
 
-    def handle_help_command(self, source, target, was_pm, args):
+    def handle_help_command(self, source, target, is_pm, args):
         if len(args) > 0:
             # Help about a specific command
             command_name = args[0]

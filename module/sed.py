@@ -67,8 +67,8 @@ class ModuleMain(core.module.Module):
         self.register_event("core.self_part", self.handle_self_part)
         self.register_event("core.other_part", self.handle_other_part)
 
-    def handle_message(self, source, reply_target, was_pm, message):
-        if was_pm or message.startswith(self.bot.command_prefix):
+    def handle_message(self, source, reply_target, is_pm, message):
+        if is_pm or message.startswith(self.bot.command_prefix):
             return
 
         # TODO handle s// stuff
@@ -95,8 +95,8 @@ class ModuleMain(core.module.Module):
 
         self.message_backlog[channel.name].flush_user(user)
     
-    def handle_sed_command(self, source, target, was_pm, args):
-        if was_pm:
+    def handle_sed_command(self, source, target, is_pm, args):
+        if is_pm:
             self.bot.send_message(target, "Why would you use sed in this PM...?")
             return
 
@@ -139,8 +139,8 @@ class ModuleMain(core.module.Module):
         result = "%s meant: %s" % (user.nick, result)
         self.bot.send_message(target, result)
 
-    def handle_gsed_command(self, source, target, was_pm, args):
-        if was_pm:
+    def handle_gsed_command(self, source, target, is_pm, args):
+        if is_pm:
             self.bot.send_message(target, "Why would you use sed in this PM...?")
             return
 

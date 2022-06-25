@@ -29,14 +29,14 @@ class ModuleMain(core.module.Module):
             if re_match(pattern, user_source.to_source_string()):
                 self.bot.send_message(channel.name, "%s: %s" % (user_source.nick, entry))
 
-    def handle_add_greeting_command(self, source, target, was_pm, args):
+    def handle_add_greeting_command(self, source, target, is_pm, args):
         pattern = args[0]
         greeting = " ".join(args[1:])
         self.db["patterns"][pattern] = greeting
         self.write_module_data(self.db)
         self.bot.send_message(target, "Greeting added.")
 
-    def handle_list_greetings_command(self, source, target, was_pm, args):
+    def handle_list_greetings_command(self, source, target, is_pm, args):
         message = []
 
         for pattern, greeting in self.db["patterns"].items():
@@ -44,7 +44,7 @@ class ModuleMain(core.module.Module):
 
         self.bot.send_message(target, "Greetings:\n%s" % "\n".join(message))
 
-    def handle_del_greeting_command(self, source, target, was_pm, args):
+    def handle_del_greeting_command(self, source, target, is_pm, args):
         pattern = args[0]
 
         if pattern not in self.db["patterns"]:

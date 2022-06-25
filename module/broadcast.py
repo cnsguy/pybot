@@ -95,7 +95,7 @@ class ModuleMain(core.module.Module):
 
         self.accept_sock.close()
 
-    def handle_add_tag_command(self, source, target, was_pm, args):
+    def handle_add_tag_command(self, source, target, is_pm, args):
         tag = args[0]
         tag_channel = args[1]
 
@@ -109,7 +109,7 @@ class ModuleMain(core.module.Module):
         self.bot.send_message(target, "Added.")
         self.write_module_data(self.db)
 
-    def handle_del_tag_command(self, source, target, was_pm, args):
+    def handle_del_tag_command(self, source, target, is_pm, args):
         tag = args[0]
         tag_channel = args[1]
 
@@ -127,7 +127,7 @@ class ModuleMain(core.module.Module):
         self.bot.send_message(target, "Deleted.")
         self.write_module_data(self.db)
 
-    def handle_list_tags_command(self, source, target, was_pm, args):
+    def handle_list_tags_command(self, source, target, is_pm, args):
         message = []
 
         for tag, channel_names in self.db["tag_channels"].items():

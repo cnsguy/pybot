@@ -15,15 +15,15 @@ class ModuleMain(core.module.Module):
             core.command.Command("part", self.handle_part_command, 0, "(<channel>)",
                 "Leaves either the specified, or the current channel.", "channel.part"))
 
-    def handle_join_command(self, source, target, was_pm, args):
+    def handle_join_command(self, source, target, is_pm, args):
         target_channel_name = args[0]
         self.bot.send_raw_line("JOIN %s" % target_channel_name)
 
-    def handle_part_command(self, source, target, was_pm, args):
+    def handle_part_command(self, source, target, is_pm, args):
         if len(args) > 0:
             to_part = args[0]
         else:
-            if was_pm:
+            if is_pm:
                 return
 
             to_part = target

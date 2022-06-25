@@ -13,7 +13,7 @@ class ModuleMain(core.module.Module):
             core.command.Command("restart", self.handle_restart_command, 0, "(<reason...>)",
                 "Restarts the bot.", "network.restart"))
 
-    def handle_quit_command(self, source, target, was_pm, args):
+    def handle_quit_command(self, source, target, is_pm, args):
         reason = " ".join(args)
 
         if len(reason) > 0:
@@ -23,7 +23,7 @@ class ModuleMain(core.module.Module):
 
         self.bot.disconnect()
 
-    def handle_restart_command(self, source, target, was_pm, args):
+    def handle_restart_command(self, source, target, is_pm, args):
         reason = " ".join(args)
 
         if len(reason) > 0:

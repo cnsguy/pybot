@@ -46,7 +46,7 @@ class ModuleMain(core.module.Module):
 
         self.bot.send_message(reply_target, self.run_talk(message))
 
-    def handle_add_ignore_command(self, source, target, was_pm, args):
+    def handle_add_ignore_command(self, source, target, is_pm, args):
         pattern = args[0]
 
         if pattern in self.db["ignored"]:
@@ -57,7 +57,7 @@ class ModuleMain(core.module.Module):
         self.write_module_data(self.db)
         self.bot.send_message(target, "Ignored.")
 
-    def handle_list_ignores_command(self, source, target, was_pm, args):
+    def handle_list_ignores_command(self, source, target, is_pm, args):
         message = []
 
         for pattern in self.db["ignored"]:
@@ -66,7 +66,7 @@ class ModuleMain(core.module.Module):
         final_message = "List of ignores:\n%s" % "\n".join(message)
         self.bot.send_message(target, final_message)
 
-    def handle_del_ignore_command(self, source, target, was_pm, args):
+    def handle_del_ignore_command(self, source, target, is_pm, args):
         pattern = args[0]
 
         if pattern not in self.db["ignored"]:

@@ -32,7 +32,7 @@ class ModuleMain(core.module.Module):
                     start, end = match.span()
                     self.bot.send_message(reply_target, re_sub(entry["word_pattern"], entry["response"], message[start:end]))
 
-    def handle_add_command(self, source, target, was_pm, args):
+    def handle_add_command(self, source, target, is_pm, args):
         sender_pattern = args[0]
         word_pattern = args[1]
         response = " ".join(args[2:])
@@ -50,7 +50,7 @@ class ModuleMain(core.module.Module):
         self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern added.")
 
-    def handle_del_command(self, source, target, was_pm, args):
+    def handle_del_command(self, source, target, is_pm, args):
         sender_pattern = args[0]
         word_pattern = args[1]
         response = " ".join(args[2:])
@@ -70,7 +70,7 @@ class ModuleMain(core.module.Module):
         self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern deleted.")
 
-    def handle_list_command(self, source, target, was_pm, args):
+    def handle_list_command(self, source, target, is_pm, args):
         message = []
 
         for entry in self.db["patterns"]:

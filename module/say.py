@@ -16,16 +16,16 @@ class ModuleMain(core.module.Module):
             core.command.Command("raw", self.handle_raw_command, 0, "<message...>",
                 "Sends a raw line to the server.", "say.raw"))
 
-    def handle_say_command(self, source, target, was_pm, args):
+    def handle_say_command(self, source, target, is_pm, args):
         message = " ".join(args)
         self.bot.send_message(target, message)
 
-    def handle_say_to_command(self, source, target, was_pm, args):
+    def handle_say_to_command(self, source, target, is_pm, args):
         target = args[0]
         message = " ".join(args[1:])
         self.bot.send_message(target, message)
 
-    def handle_raw_command(self, source, target, was_pm, args):
+    def handle_raw_command(self, source, target, is_pm, args):
         message = " ".join(args)
         message = message.encode("u8", "ignore").decode("unicode_escape")
         self.bot.send_raw_line(message)

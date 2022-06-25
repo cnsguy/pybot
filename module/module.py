@@ -16,7 +16,7 @@ class ModuleMain(core.module.Module):
             core.command.Command("mod_reload", self.handle_mod_reload_command, 1, "<module>",
                 "Reloads the specified module", "module.mod_reload"))
 
-    def handle_mod_load_command(self, source, target, was_pm, args):
+    def handle_mod_load_command(self, source, target, is_pm, args):
         module_name = args[0]
 
         if module_name in self.bot.module_instances:
@@ -29,7 +29,7 @@ class ModuleMain(core.module.Module):
         except Exception as err:
             self.bot.send_message(target, "Failed to load module: %s" % str(err))
 
-    def handle_mod_remove_command(self, source, target, was_pm, args):
+    def handle_mod_remove_command(self, source, target, is_pm, args):
         module_name = args[0]
 
         if module_name not in self.bot.module_instances:
@@ -42,7 +42,7 @@ class ModuleMain(core.module.Module):
         except Exception as err:
             self.bot.send_message(target, "Failed to remove module: %s" % err)
 
-    def handle_mod_reload_command(self, source, target, was_pm, args):
+    def handle_mod_reload_command(self, source, target, is_pm, args):
         module_name = args[0]
 
         if module_name not in self.bot.module_instances:

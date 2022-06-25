@@ -10,7 +10,7 @@ class ModuleMain(core.module.Module):
             core.command.Command("repeat", self.handle_repeat_command, 2, "<times> <command> (<args...>)",
                 "Repeats a command the specified number of times with the same arguments.", "repeat.repeat"))
 
-    def handle_repeat_command(self, source, reply_target, was_pm, args):
+    def handle_repeat_command(self, source, reply_target, is_pm, args):
         try:
             times = int(args.pop(0))
         except ValueError:
@@ -20,4 +20,4 @@ class ModuleMain(core.module.Module):
         command_name = args.pop(0)
 
         for _ in range(0, times):
-            self.bot.run_command_by_name(source, command_name, reply_target, was_pm, args)
+            self.bot.run_command_by_name(source, command_name, reply_target, is_pm, args)

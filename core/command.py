@@ -15,5 +15,5 @@ class Command:
         else:
             return "%s - %s" % (self.name, self.description)
 
-    def execute(self, source, target, was_pm, args):
-        self.handler(source, target, was_pm, args)
+    def execute(self, source, target, is_pm, args):
+        self.handler(source, target, is_pm, args)
