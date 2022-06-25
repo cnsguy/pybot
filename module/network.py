@@ -2,7 +2,13 @@ import core.module
 import core.command
 import core.bot_instance
 import core.irc_packet
-from subprocess import run as subprocess_run
+from subprocess import Popen, PIPE
+
+def get_latest_commit(repo):
+    proc = Popen(["git", "log", repo, "main", "--oneline", "--no-color"], stdout = PIPE, encoding = "u8")
+    out, _ = proc.communicate()
+    out = out.split("\n")
+    return out[0].strip()
 
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
@@ -15,7 +21,7 @@ class ModuleMain(core.module.Module):
                 "Restarts the bot.", "network.restart"))
         self.register_command(
             core.command.Command("update", self.handle_update_command, 0, None,
-                "Does a git pull and restarts the bot.", "network.update"))
+                "Checks git origin/main for updates and restarts the bot if there are any.", "network.update"))
 
     def handle_quit_command(self, source, target, is_pm, args):
         reason = " ".join(args)
@@ -38,6 +44,14 @@ class ModuleMain(core.module.Module):
         self.bot.restart()
 
     def handle_update_command(self, source, target, is_pm, args):
-        self.bot.send_immediately("QUIT :Updating")
-        subprocess_run(["git", "pull"])
+        proc = Popen(["git", "fetch", "origin"])
+        proc.communicate()
+        last_local = get_latest_commit("main")
+        last_remote = get_latest_commit("origin/main")
+
+        if last_remote == last_local:
+            self.bot.send_message(target, "No new commits on origin/main.")
+            return
+
+        self.bot.send_immediately("QUIT :Updating to %s" % last_remote)
         self.bot.restart()
