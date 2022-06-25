@@ -80,8 +80,8 @@ class BotInstance:
         self.reconnect_wait_time = 30
 
         # Message queueing
-        self.privmsg_thread = Thread(target = self.privmsg_thread_main, daemon = True)
-        self.privmsg_queue = []
+        self.privmsg_thread = Thread(target = self.send_thread_main, daemon = True)
+        self.send_queue = []
 
         for module_name in module_names:
             try:
@@ -132,29 +132,35 @@ class BotInstance:
         for _, module in self.module_instances.items():
             module.handle_event(name, *args)
 
-    def send_raw_line(self, line):
-        return self.socket.send_raw_line(line)
-
-    def privmsg_thread_main(self):
+    def send_thread_main(self):
         while self.state != BotInstanceState.STOPPING:
-            if len(self.privmsg_queue) > 0:
-                channel_name, message = self.privmsg_queue.pop(0)
-                self.send_raw_line("PRIVMSG %s :%s" % (channel_name, message))
+            if len(self.send_queue) > 0:
+                line = self.send_queue.pop(0)
+                self.socket.send_raw_line(line)
 
             sleep(1)
 
-        print("[bot_instance] stopping message queue thread")
+        print("[bot_instance] stopping send queue thread")
 
-    def send_message(self, target, message):
+    def send_raw_line(self, line, urgent = False):
+        if urgent:
+            self.send_queue.insert(0, line)
+        else:
+            self.send_queue.append(line)
+
+    def enqueue_message(self, target, message, urgent):
+        self.send_raw_line("PRIVMSG %s :%s" % (target, message), urgent)
+
+    def send_message(self, target, message, urgent = False):
         max_len = 300 # XXX, should be based on server info instead
 
         for line in message.split("\n"):
             while len(line) > max_len:
                 part = line[:max_len]
-                self.privmsg_queue.append((target, part))
+                self.enqueue_message(target, part, urgent)
                 line = line[max_len:]
 
-            self.privmsg_queue.append((target, line))
+            self.enqueue_message(target, line, urgent)
 
     def add_user(self, user):
         self.emit_event("user.new", user)
