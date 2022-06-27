@@ -1,14 +1,17 @@
 modules:
   - date module (play back message at specific date)
-  - fix !help <command>
+  - update -> separate git module (!pull which reports errors, etc)
+  - maybe some kind of json -> python object mapping thing
 
 core:
   - lisp-like command parsing
   - refactor BotInstance into inheriting a basic IrcClient
-  - channel / config saving (module channel modules)
+  - channel / config saving
   - ssl:
     - currently trying to connect to a server with an invalid certificate will just result in a "socket closed" error and no more info
     - it should really be possible to trust some certificates manually instead of the current method of accepting anything and making SSL completely useless
   - bot-events:
-    - core. prefix (message -> core.message)
     - handle exceptions gracefully and report in the same fashion as irc events currently work
+
+bugs:
+  - nick tracking is somehow bad - halfop sigil?
