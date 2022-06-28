@@ -42,4 +42,4 @@ class ModuleMain(core.module.Module):
             self.blog_counter = 0
 
         if self.num_kicks >= 3:
-            self.bot.send_raw_line("MODE %s +b %s" % (reply_target, user_source.host))
+            self.bot.send_raw_line("MODE %s +b *!*@%s" % (reply_target, user_source.host))
