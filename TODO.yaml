@@ -1,6 +1,5 @@
 modules:
   - date module (play back message at specific date)
-  - update -> separate git module (!pull which reports errors, etc)
   - maybe some kind of json -> python object mapping thing
 
 core:
