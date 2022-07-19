@@ -1,5 +1,5 @@
 def parse_nick_list_entry(entry):
-    special_chars = "~@&+"
+    special_chars = "~@&+%"
     special = None
 
     for char in special_chars:
