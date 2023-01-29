@@ -7,16 +7,17 @@ import core.channel
 from collections import deque
 from re import sub as re_sub
 
+
 class ChannelBacklog:
     def __init__(self):
-        self.messages = deque(maxlen = 10)
+        self.messages = deque(maxlen=10)
         self.user_messages = {}
 
     def add_message(self, user, message):
         self.messages.append((user.nick, message))
 
         if not user in self.user_messages:
-            self.user_messages[user] = deque(maxlen = 10)
+            self.user_messages[user] = deque(maxlen=10)
 
         self.user_messages[user].append(message)
 
@@ -26,9 +27,10 @@ class ChannelBacklog:
 
     def get_user_backlog(self, user):
         return self.user_messages.get(user)
-    
+
     def get_backlog(self):
         return self.messages
+
 
 def parse_sed(command):
     if not command.startswith("s") or len(command) < 2:
@@ -52,6 +54,7 @@ def parse_sed(command):
 
     return pattern, replacement, count
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
@@ -59,10 +62,10 @@ class ModuleMain(core.module.Module):
         self.channel_message_backlog = {}
         self.register_command(
             core.command.Command("sed", self.handle_sed_command, 1, "<pattern>",
-                "Sed."))
+                                 "Sed."))
         self.register_command(
             core.command.Command("gsed", self.handle_gsed_command, 1, "<pattern>",
-                "Global sed."))
+                                 "Global sed."))
         self.register_event("core.message", self.handle_message)
         self.register_event("core.self_part", self.handle_self_part)
         self.register_event("core.other_part", self.handle_other_part)
@@ -73,7 +76,8 @@ class ModuleMain(core.module.Module):
 
         # TODO handle s// stuff
         if message.startswith("s/"):
-            self.handle_sed_command(source, reply_target, False, message.split(" "))
+            self.handle_sed_command(
+                source, reply_target, False, message.split(" "))
             return
 
         channel_name = reply_target
@@ -94,22 +98,25 @@ class ModuleMain(core.module.Module):
             return
 
         self.message_backlog[channel.name].flush_user(user)
-    
+
     def handle_sed_command(self, source, target, is_pm, args):
         if is_pm:
-            self.bot.send_message(target, "Why would you use sed in this PM...?")
+            self.bot.send_message(
+                target, "Why would you use sed in this PM...?")
             return
 
         if target not in self.message_backlog:
-            self.bot.send_message(target, "No messages in backlog yet. (Backlog is in-memory only)")
+            self.bot.send_message(
+                target, "No messages in backlog yet. (Backlog is in-memory only)")
             return
-        
+
         channel_backlog = self.message_backlog[target]
         user = self.bot.users[source.nick]
         user_backlog = channel_backlog.get_user_backlog(user)
 
         if user_backlog is None:
-            self.bot.send_message(target, "No messages in your personal backlog yet.")
+            self.bot.send_message(
+                target, "No messages in your personal backlog yet.")
             return
 
         if args[0].startswith("-"):
@@ -118,7 +125,7 @@ class ModuleMain(core.module.Module):
             except ValueError:
                 self.bot.send_message(target, "Cannot parse number.")
                 return
-            
+
             args.pop(0)
         else:
             offset = -1
@@ -130,22 +137,25 @@ class ModuleMain(core.module.Module):
             return
 
         if abs(offset) > len(user_backlog):
-            self.bot.send_message(target, "Offset larger than the size of backlog.")
+            self.bot.send_message(
+                target, "Offset larger than the size of backlog.")
             return
 
         pattern, replacement, count = result
         message = user_backlog[offset]
-        result = re_sub(pattern, replacement, message, count = count)
+        result = re_sub(pattern, replacement, message, count=count)
         result = "%s meant: %s" % (user.nick, result)
         self.bot.send_message(target, result)
 
     def handle_gsed_command(self, source, target, is_pm, args):
         if is_pm:
-            self.bot.send_message(target, "Why would you use sed in this PM...?")
+            self.bot.send_message(
+                target, "Why would you use sed in this PM...?")
             return
 
         if target not in self.message_backlog:
-            self.bot.send_message(target, "No messages in backlog yet. (Backlog is in-memory only)")
+            self.bot.send_message(
+                target, "No messages in backlog yet. (Backlog is in-memory only)")
             return
 
         channel_backlog = self.message_backlog[target].get_backlog()
@@ -156,13 +166,14 @@ class ModuleMain(core.module.Module):
             except ValueError:
                 self.bot.send_message(target, "Cannot parse number.")
                 return
-            
+
             args.pop(0)
         else:
             offset = -1
 
         if abs(offset) > len(channel_backlog):
-            self.bot.send_message(target, "Offset larger than the size of backlog.")
+            self.bot.send_message(
+                target, "Offset larger than the size of backlog.")
             return
 
         result = parse_sed(" ".join(args))
@@ -173,6 +184,6 @@ class ModuleMain(core.module.Module):
 
         pattern, replacement, count = result
         orig_nick, message = channel_backlog[offset]
-        result = re_sub(pattern, replacement, message, count = count)
+        result = re_sub(pattern, replacement, message, count=count)
         result = "%s thinks %s meant: %s" % (source.nick, orig_nick, result)
         self.bot.send_message(target, result)

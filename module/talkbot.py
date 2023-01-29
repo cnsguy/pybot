@@ -5,6 +5,7 @@ import core.irc_packet
 from random import choice
 from re import match as re_match
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
@@ -16,13 +17,13 @@ class ModuleMain(core.module.Module):
         self.register_event("core.message", self.handle_message)
         self.register_command(
             core.command.Command("talk_ignore", self.handle_add_ignore_command, 1, "<pattern>",
-                "<pattern>", "talk.add_ignore"))
+                                 "<pattern>", "talk.add_ignore"))
         self.register_command(
             core.command.Command("list_ignores", self.handle_list_ignores_command, 0, None,
-                None))
+                                 None))
         self.register_command(
             core.command.Command("talk_unignore", self.handle_del_ignore_command, 1, "<pattern>",
-                "<pattern>", "talk.del_ignore"))
+                                 "<pattern>", "talk.del_ignore"))
 
     def run_talk(self, message):
         message = ":".join(message.split(":")[1:]).strip()

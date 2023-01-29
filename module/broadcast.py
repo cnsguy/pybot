@@ -6,24 +6,26 @@ import core.line_socket
 from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM, SOL_SOCKET, SO_REUSEADDR
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name, self.on_stop)
         self.db = self.read_module_data({
-            "ip": "127.0.0.1", # don't bind to anything reachable remotely, it can be used for resource exhaustion
+            # don't bind to anything reachable remotely, it can be used for resource exhaustion
+            "ip": "127.0.0.1",
             "port": 1234,
             "tag_channels": {}
         })
 
         self.register_command(
             core.command.Command("add_tag", self.handle_add_tag_command, 2, "<tag> <channel>",
-                "Adds a broadcast tag to the specified channel.", "broadcast.add_tag"))
+                                 "Adds a broadcast tag to the specified channel.", "broadcast.add_tag"))
         self.register_command(
             core.command.Command("del_tag", self.handle_del_tag_command, 2, "<tag> <channel>",
-                "Deletes a broadcast tag from the specified channel.", "broadcast.del_tag"))
+                                 "Deletes a broadcast tag from the specified channel.", "broadcast.del_tag"))
         self.register_command(
             core.command.Command("list_tags", self.handle_list_tags_command, 0, None,
-                "Lists all broadcast tags."))
+                                 "Lists all broadcast tags."))
 
         self.clients = []
 
@@ -32,7 +34,7 @@ class ModuleMain(core.module.Module):
         self.accept_sock.bind((self.db["ip"], self.db["port"]))
         self.accept_sock.listen(5)
 
-        self.recv_thread = Thread(target = self.recv_thread_main, daemon = True)
+        self.recv_thread = Thread(target=self.recv_thread_main, daemon=True)
         self.recv_thread.start()
 
     def broadcast_message(self, tag, should_hl, message):
@@ -68,12 +70,14 @@ class ModuleMain(core.module.Module):
                 message = " ".join(splt)
                 self.broadcast_message(tag, should_hl, message)
         except ConnectionResetError:
-            print("[broadcast] client %s:%d: disconnecting client on RST" % (ip, port))
+            print("[broadcast] client %s:%d: disconnecting client on RST" %
+                  (ip, port))
         except OSError:
             print("[broadcast] client %s:%d: sock got closed" % (ip, port))
         except Exception as err:
             # XXX TODO backtrace
-            print("[broadcast] client %s:%d disconnecting on error %s" % (ip, port, str(err)))
+            print("[broadcast] client %s:%d disconnecting on error %s" %
+                  (ip, port, str(err)))
 
         print("[broadcast] client %s:%d: removed" % (ip, port))
         self.clients.remove(socket)
@@ -81,10 +85,11 @@ class ModuleMain(core.module.Module):
     def recv_thread_main(self):
         try:
             while True:
-                c, addr  = self.accept_sock.accept()
+                c, addr = self.accept_sock.accept()
                 ip, port = addr
                 print("[broadcast] client %s:%d: accepted" % (ip, port))
-                thread = Thread(target = self.client_thread_main, args = (ip, port, core.line_socket.LineSocket(c)), daemon = True)
+                thread = Thread(target=self.client_thread_main, args=(
+                    ip, port, core.line_socket.LineSocket(c)), daemon=True)
                 thread.start()
         except OSError:
             print("[broadcast] accept socket got closed")
@@ -118,7 +123,7 @@ class ModuleMain(core.module.Module):
 
         if tag_channel not in self.db["tag_channels"][tag]:
             return
-        
+
         self.db["tag_channels"][tag].remove(tag_channel)
 
         if len(self.db["tag_channels"][tag]) == 0:

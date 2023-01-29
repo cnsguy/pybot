@@ -4,6 +4,7 @@ import core.bot_instance
 import core.irc_packet
 from string import ascii_uppercase
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
@@ -22,7 +23,7 @@ class ModuleMain(core.module.Module):
 
         if user_source.host != self.last_host:
             self.reset_counters()
-        
+
         self.last_host = user_source.host
 
         # Only trigger for that one obnoxious guy who floods the channel with barely coherent garbage
@@ -37,9 +38,11 @@ class ModuleMain(core.module.Module):
                 break
 
         if self.blog_counter >= 5:
-            self.bot.send_raw_line("KICK %s %s :Stop flooding (Sorry if false positive)" % (reply_target, user_source.nick))
+            self.bot.send_raw_line("KICK %s %s :Stop flooding (Sorry if false positive)" % (
+                reply_target, user_source.nick))
             self.num_kicks += 1
             self.blog_counter = 0
 
         if self.num_kicks >= 3:
-            self.bot.send_raw_line("MODE %s +b *!*@%s" % (reply_target, user_source.host))
+            self.bot.send_raw_line("MODE %s +b *!*@%s" %
+                                   (reply_target, user_source.host))

@@ -10,6 +10,7 @@ def parse_nick_list_entry(entry):
 
     return special, entry
 
+
 class IrcUserSource:
     def __init__(self, nick, ident, host):
         self.nick = nick
@@ -22,12 +23,13 @@ class IrcUserSource:
         if "!" not in source_string:
             return IrcUserSource(source_string, None, None)
 
-        nick, rest  = source_string.split("!")
+        nick, rest = source_string.split("!")
         ident, host = rest.split("@")
         return IrcUserSource(nick, ident, host)
-    
+
     def to_source_string(self):
         return "%s!%s@%s" % (self.nick, self.ident, self.host)
+
 
 class IrcPacket:
     def __init__(self, source, command, args):
@@ -47,7 +49,7 @@ class IrcPacket:
         # Can be assumed to hold at least one entry
         if split[0].startswith(":"):
             source = split.pop(0)
-            source = source[1:] # Skip over :
+            source = source[1:]  # Skip over :
 
         # Pop off command (eg: PRIVMSG)
         command = split.pop(0)
@@ -62,7 +64,7 @@ class IrcPacket:
             # see PRIVMSG's :some message here at the end
             elif entry.startswith(":"):
                 entry = entry[1:]
-                last_arg = [entry] # Is a list for easier string building
+                last_arg = [entry]  # Is a list for easier string building
             # Just a normal argument (like NICK's newnick)
             else:
                 args.append(entry)

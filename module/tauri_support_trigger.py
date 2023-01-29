@@ -6,8 +6,10 @@ from re import match as re_match, sub as re_sub, finditer as re_finditer
 from datetime import datetime
 from time import time
 
+
 def escape_nick(nick):
     return nick[0] + "." + nick[1:]
+
 
 class SupportEntry:
     def __init__(self, start_hour, end_hour, nick, languages):
@@ -18,6 +20,7 @@ class SupportEntry:
 
     def format_line(self):
         return "%d:00-%d:00 CET %s (%s)" % (self.start_hour, self.end_hour, escape_nick(self.nick), ", ".join(self.languages))
+
 
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
@@ -34,21 +37,21 @@ class ModuleMain(core.module.Module):
 
         self.register_command(
             core.command.Command("support_trigger_add", self.handle_add_command, 1, "<pattern...>",
-                "Adds a new support trigger pattern.", "support_trigger.support_trigger_add"))
+                                 "Adds a new support trigger pattern.", "support_trigger.support_trigger_add"))
         self.register_command(
             core.command.Command("support_trigger_del", self.handle_del_command, 1, "<pattern...>",
-                "Deletes a support trigger pattern.", "support_trigger.support_trigger_del"))
+                                 "Deletes a support trigger pattern.", "support_trigger.support_trigger_del"))
         self.register_command(
             core.command.Command("support_trigger_list", self.handle_list_command, 0, None,
-                "Lists current support trigger patterns."))
+                                 "Lists current support trigger patterns."))
         self.register_command(
             core.command.Command("support", self.handle_support_command, 0, None,
-                "Manual support message trigger."))
+                                 "Manual support message trigger."))
 
         self.users_already_informed = set()
         self.register_event("user.delete", self.drop_informed_entry)
         self.register_event("core.message", self.handle_message)
-    
+
     def drop_informed_entry(self, user):
         if user not in self.users_already_informed:
             return
@@ -58,16 +61,19 @@ class ModuleMain(core.module.Module):
     def send_message(self, target):
         available = self.collect_available()
         unavailable = [x for x in self.support_entries if x not in available]
-        self.bot.send_message(target, "Support is available on workdays | Munkanapokon van support.")
+        self.bot.send_message(
+            target, "Support is available on workdays | Munkanapokon van support.")
 
         if len(available) > 0:
-            self.bot.send_message(target, "Currently available support staff | Jelenleg elérhető:")
+            self.bot.send_message(
+                target, "Currently available support staff | Jelenleg elérhető:")
 
             for entry in available:
                 self.bot.send_message(target, entry.format_line())
 
         if len(unavailable) > 0:
-            self.bot.send_message(target, "Currently unavailable support staff | Jelenleg nem elérhető:")
+            self.bot.send_message(
+                target, "Currently unavailable support staff | Jelenleg nem elérhető:")
 
             for entry in unavailable:
                 self.bot.send_message(target, entry.format_line())
@@ -76,7 +82,7 @@ class ModuleMain(core.module.Module):
         results = []
         info = datetime.now()
 
-        if info.weekday() >= 5: # checks for weekends (0-based)
+        if info.weekday() >= 5:  # checks for weekends (0-based)
             return []
 
         for entry in self.support_entries:
@@ -116,13 +122,13 @@ class ModuleMain(core.module.Module):
 
     def handle_del_command(self, source, target, is_pm, args):
         pattern = " ".join(args[0:])
- 
+
         try:
             idx = self.db["patterns"].index(pattern)
         except ValueError:
             self.bot.send_message(target, "No such pattern.")
             return
-        
+
         del self.db["patterns"][idx]
         self.write_module_data(self.db)
         self.bot.send_message(target, "Pattern deleted.")

@@ -15,21 +15,24 @@ from re import match as re_match
 from ssl import create_default_context as ssl_create_default_context, SSLContext, CERT_NONE
 from socket import socket, AF_INET, SOCK_STREAM
 
+
 class BotInstanceState(Enum):
     DISCONNECTED = 0
     AUTHING = 1
     CONNECTED = 2
     STOPPING = 3
 
+
 ssl_default_context = ssl_create_default_context()
 
-ssl_useless_context = SSLContext() 
+ssl_useless_context = SSLContext()
 ssl_useless_context.verify_mode = CERT_NONE
 ssl_useless_context.check_hostname = False
 
+
 class BotInstance:
     def __init__(self, nick, ident, real_name, host, port, use_ssl, verify_ssl, db_name, command_prefix,
-        init_channels, debug_channel, module_names):
+                 init_channels, debug_channel, module_names):
 
         # Config
         self.nick = nick
@@ -45,19 +48,21 @@ class BotInstance:
         # State
         if use_ssl:
             context = ssl_default_context if verify_ssl else ssl_useless_context
-            sock_to_wrap = context.wrap_socket(socket(AF_INET, SOCK_STREAM), server_hostname = host)
+            sock_to_wrap = context.wrap_socket(
+                socket(AF_INET, SOCK_STREAM), server_hostname=host)
         else:
             sock_to_wrap = None
 
         self.socket = core.irc_socket.IrcSocket(sock_to_wrap)
 
-        self.my_user = core.user.User(self.nick, self.ident, None, self.real_name)
-        self.users = {self.nick: self.my_user} # Map of user nick -> User obj
-        self.channels = {} # Map of channel name -> Channel obj
-        self.whois_callbacks = {} # Map of user nick -> callback array
+        self.my_user = core.user.User(
+            self.nick, self.ident, None, self.real_name)
+        self.users = {self.nick: self.my_user}  # Map of user nick -> User obj
+        self.channels = {}  # Map of channel name -> Channel obj
+        self.whois_callbacks = {}  # Map of user nick -> callback array
 
         # Misc
-        self.module_instances = {} # Map of module name -> ModuleMain instance
+        self.module_instances = {}  # Map of module name -> ModuleMain instance
         self.packet_handlers = {
             "PING": self.handle_ping,
             "JOIN": self.handle_join,
@@ -80,17 +85,18 @@ class BotInstance:
         self.reconnect_wait_time = 30
 
         # Message queueing
-        self.privmsg_thread = Thread(target = self.send_thread_main, daemon = True)
+        self.privmsg_thread = Thread(target=self.send_thread_main, daemon=True)
         self.send_queue = []
 
         for module_name in module_names:
             try:
                 self.load_module(module_name)
             except Exception as err:
-                stderr.write("Loading module '%s' failed: %s\n" % (module_name, err))
+                stderr.write("Loading module '%s' failed: %s\n" %
+                             (module_name, err))
 
     def inject_module(self, module_name, constructor):
-        assert(module_name not in self.module_instances)
+        assert (module_name not in self.module_instances)
         self.module_instances[module_name] = constructor(self, module_name)
 
     # Loads a module from the modules/ directory
@@ -145,7 +151,7 @@ class BotInstance:
 
         print("[bot_instance] stopping send queue thread")
 
-    def send_raw_line(self, line, urgent = False):
+    def send_raw_line(self, line, urgent=False):
         if urgent:
             self.send_queue.insert(0, line)
         else:
@@ -154,8 +160,8 @@ class BotInstance:
     def enqueue_message(self, target, message, urgent):
         self.send_raw_line("PRIVMSG %s :%s" % (target, message), urgent)
 
-    def send_message(self, target, message, urgent = False):
-        max_len = 300 # XXX, should be based on server info instead
+    def send_message(self, target, message, urgent=False):
+        max_len = 300  # XXX, should be based on server info instead
 
         for line in message.split("\n"):
             while len(line) > max_len:
@@ -172,7 +178,7 @@ class BotInstance:
     def delete_user(self, user):
         self.emit_event("user.delete", user)
         del self.users[user.nick]
-    
+
     def handle_ping(self, source, args):
         self.send_raw_line("PONG %s" % " ".join(args))
 
@@ -199,7 +205,8 @@ class BotInstance:
         # Otherwise, it has to be someone else
         # Create new entry for the user if they weren't previously known
         if nick not in self.users:
-            user = core.user.User(nick, user_source.ident, user_source.host, None)
+            user = core.user.User(nick, user_source.ident,
+                                  user_source.host, None)
             self.add_user(user)
         else:
             user = self.users[nick]
@@ -232,7 +239,7 @@ class BotInstance:
                 user.remove_channel(channel_name)
 
                 # No need for channel.remove_user since it's going to get destroyed later
-                #channel.remove_user(user)
+                # channel.remove_user(user)
 
                 # We are on no common channels after the part, remove user from the userlist
                 if len(user.channels) == 0:
@@ -256,7 +263,7 @@ class BotInstance:
     def handle_quit(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
         nick = user_source.nick
-        
+
         # We got disconnected
         if nick == self.nick:
             self.socket.close()
@@ -285,7 +292,7 @@ class BotInstance:
         # Remove old nick from userlist
         del self.users[old_nick]
         # Sanity check: two people can't have the same nick
-        assert(new_nick not in self.users)
+        assert (new_nick not in self.users)
         self.users[new_nick] = user
 
         for channel in user.channels.values():
@@ -360,7 +367,7 @@ class BotInstance:
         response_list = self.socket.read_irc_packets_until("318")
         authed_as = None
 
-        assert(response_list is not None)
+        assert (response_list is not None)
 
         for packet in response_list:
             self.handle_packet(packet)
@@ -385,28 +392,30 @@ class BotInstance:
 
         hashed = sha256(account_name.encode("u8", "ignore")).hexdigest()
         result = core.json_data.read_json_data(account_defaults,
-            "data", self.db_name, "accounts", "%s.json" % hashed)
+                                               "data", self.db_name, "accounts", "%s.json" % hashed)
 
         # Imagine finding an sha256 collision here
-        assert(result["name"] == account_name)
+        assert (result["name"] == account_name)
         return result
-    
+
     def check_admin_from_host(self, mask):
         defaults = {
             "masks": []
         }
 
-        results = core.json_data.read_json_data(defaults, "data", self.db_name, "admin_masks.json")
+        results = core.json_data.read_json_data(
+            defaults, "data", self.db_name, "admin_masks.json")
 
         for stored_mask in results["masks"]:
             if re_match(stored_mask, mask):
                 return True
 
         return False
-    
+
     def run_command(self, source, command, reply_target, is_pm, args):
         if len(args) < command.min_args:
-            self.send_message(reply_target, self.command_prefix + command.format_help())
+            self.send_message(
+                reply_target, self.command_prefix + command.format_help())
             return
 
         # If no whois lookup is needed, the command can be executed immediately
@@ -421,19 +430,22 @@ class BotInstance:
 
         def account_ready(authed_as):
             if authed_as is None:
-                self.send_message(reply_target, "You need to log in to use the '%s' command." % command.name)
+                self.send_message(
+                    reply_target, "You need to log in to use the '%s' command." % command.name)
                 return
 
             account = self.get_account_data(authed_as)
 
             if not account["is_admin"] and command.acl_key not in account["acl_rights"]:
-                self.send_message(reply_target, "You have no permission to use the '%s' command." % command.name)
+                self.send_message(
+                    reply_target, "You have no permission to use the '%s' command." % command.name)
                 return
 
             try:
                 command.execute(source, reply_target, is_pm, args)
             except Exception as err:
-                self.write_exception("Error processing privileged command %s" % (self.command_prefix + command.name), err)
+                self.write_exception("Error processing privileged command %s" % (
+                    self.command_prefix + command.name), err)
 
         # Queue an account lookup
         self.queue_whois_lookup(source.nick, account_ready)
@@ -449,7 +461,8 @@ class BotInstance:
             try:
                 self.run_command(source, command, reply_target, is_pm, args)
             except Exception as err:
-                self.write_exception("Error processing command %s" % (self.command_prefix + command.name), err)
+                self.write_exception("Error processing command %s" % (
+                    self.command_prefix + command.name), err)
 
     def try_process_command(self, source, reply_target, message, is_pm):
         # Early return if we don't support commands at all
@@ -459,7 +472,7 @@ class BotInstance:
         # Early return if it's not a command
         if not message.startswith(self.command_prefix):
             return
-        
+
         # Command handling
         message = message[len(self.command_prefix):]
         args = message.split(" ")
@@ -468,7 +481,8 @@ class BotInstance:
             return
 
         command_name = args.pop(0)
-        self.run_command_by_name(source, command_name, reply_target, is_pm, args)
+        self.run_command_by_name(source, command_name,
+                                 reply_target, is_pm, args)
 
     def handle_privmsg(self, source, args):
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
@@ -477,7 +491,8 @@ class BotInstance:
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
 
-        self.emit_event("core.message", user_source, reply_target, is_pm, message)
+        self.emit_event("core.message", user_source,
+                        reply_target, is_pm, message)
         self.try_process_command(user_source, reply_target, message, is_pm)
 
     def handle_notice(self, source, args):
@@ -485,13 +500,15 @@ class BotInstance:
         message = args[1]
 
         if "!" not in source:
-            self.emit_event("core.server_notice", source, channel_name, message)
+            self.emit_event("core.server_notice", source,
+                            channel_name, message)
             return
 
         user_source = core.irc_packet.IrcUserSource.from_source_string(source)
         is_pm = channel_name == self.nick
         reply_target = user_source.nick if is_pm else channel_name
-        self.emit_event("core.notice", user_source, reply_target, is_pm, message)
+        self.emit_event("core.notice", user_source,
+                        reply_target, is_pm, message)
 
     def handle_nick_in_use(self, source, args):
         if self.state != BotInstanceState.AUTHING:
@@ -505,7 +522,8 @@ class BotInstance:
             return
 
         try:
-            self.send_message(self.debug_channel, "%s: %s %s" % (prefix, type(exception).__name__, exception))
+            self.send_message(self.debug_channel, "%s: %s %s" %
+                              (prefix, type(exception).__name__, exception))
         except Exception as err:
             pass
 
@@ -515,9 +533,11 @@ class BotInstance:
 
         try:
             if packet.command in self.packet_handlers:
-                self.packet_handlers[packet.command](packet.source, packet.args)
+                self.packet_handlers[packet.command](
+                    packet.source, packet.args)
         except Exception as err:
-            self.write_exception("Error processing %s packet in global" % packet.command, err)
+            self.write_exception(
+                "Error processing %s packet in global" % packet.command, err)
 
     def run(self):
         self.privmsg_thread.start()
@@ -527,7 +547,8 @@ class BotInstance:
             self.socket.connect((self.host, self.port))
             self.state = BotInstanceState.AUTHING
             self.send_raw_line("NICK %s" % self.nick)
-            self.send_raw_line("USER %s 0 * :%s" % (self.ident, self.real_name))
+            self.send_raw_line("USER %s 0 * :%s" %
+                               (self.ident, self.real_name))
 
             # Main read loop
             while True:

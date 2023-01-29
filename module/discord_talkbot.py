@@ -3,6 +3,7 @@ import core.command
 import core.bot_instance
 import core.irc_packet
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)

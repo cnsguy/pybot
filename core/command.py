@@ -1,5 +1,5 @@
 class Command:
-    def __init__(self, name, handler, min_args, usage, description, acl_key = None):
+    def __init__(self, name, handler, min_args, usage, description, acl_key=None):
         self.name = name
         self.handler = handler
         self.min_args = min_args

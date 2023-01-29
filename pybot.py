@@ -3,6 +3,7 @@ import core.json_data
 from sys import argv, modules as sys_modules
 from time import sleep
 
+
 def main():
     if len(argv) < 2:
         exit("Usage: %s <config>" % argv[0])
@@ -36,5 +37,6 @@ def main():
 
         sleep(bot.reconnect_wait_time)
         del sys_modules["core.bot_instance"]
+
 
 main()

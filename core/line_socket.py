@@ -1,21 +1,24 @@
 from socket import socket, AF_INET, SOCK_STREAM
 
 # Tries to decode the line as utf8, then latin2, then finally utf8 with ignore if neither worked
+
+
 def decode_line_to_string(line):
     try:
         return line.decode("u8")
     except UnicodeDecodeError:
-        pass # Dont want to nest them
+        pass  # Dont want to nest them
 
     try:
         return line.decode("iso-8859-2")
-    except Exception: # XXX change this
+    except Exception:  # XXX change this
         pass
 
     return line.decode("u8", "ignore")
 
+
 class LineSocket:
-    def __init__(self, wrap = None, max_buffer_size = 8192):
+    def __init__(self, wrap=None, max_buffer_size=8192):
         if wrap is None:
             self.sock = socket(AF_INET, SOCK_STREAM)
         else:
@@ -76,9 +79,11 @@ class LineSocket:
 
     # Sends a raw line (string)
     def send_raw_line(self, line):
-        encoded_line = line.encode("u8", "ignore") # XXX make encoding configurable
+        # XXX make encoding configurable
+        encoded_line = line.encode("u8", "ignore")
         self.sock.send(encoded_line + b"\r\n")
 
+
 class SSLLineSocket(LineSocket):
-    def __init__(self, wrap = None, max_buffer_size = 8192):
+    def __init__(self, wrap=None, max_buffer_size=8192):
         pass

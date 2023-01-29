@@ -5,9 +5,11 @@ import core.irc_packet
 from random import choice, randrange
 from string import ascii_letters
 
+
 def gen_random_nick():
     pool = ascii_letters + "_-"
     return choice(ascii_letters) + "".join([choice(pool) for _ in range(0, randrange(6, 12))])
+
 
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):

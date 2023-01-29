@@ -4,30 +4,32 @@ import core.bot_instance
 import core.irc_packet
 from re import match as re_match
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
         self.db = self.read_module_data({
-            "patterns": {} # Map of greeting: greetings
+            "patterns": {}  # Map of greeting: greetings
         })
 
         self.register_event("core.other_join", self.handle_join)
         self.register_command(
             core.command.Command("add_greeting", self.handle_add_greeting_command, 2, "<pattern> <greeting>",
-                "Sets the greeting for the specified pattern.", "greet.add_greeting"))
+                                 "Sets the greeting for the specified pattern.", "greet.add_greeting"))
         self.register_command(
             core.command.Command("list_greetings", self.handle_list_greetings_command, 0, None,
-                "Lists all stored greetings."))
+                                 "Lists all stored greetings."))
         self.register_command(
             core.command.Command("del_greeting", self.handle_del_greeting_command, 1, "<pattern>",
-                "Deletes the specified greeting.", "greet.del_greeting"))
+                                 "Deletes the specified greeting.", "greet.del_greeting"))
 
     def handle_join(self, user_source, channel, user):
         patterns = self.db["patterns"]
 
         for pattern, entry in patterns.items():
             if re_match(pattern, user_source.to_source_string()):
-                self.bot.send_message(channel.name, "%s: %s" % (user_source.nick, entry))
+                self.bot.send_message(channel.name, "%s: %s" %
+                                      (user_source.nick, entry))
 
     def handle_add_greeting_command(self, source, target, is_pm, args):
         pattern = args[0]

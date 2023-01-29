@@ -4,16 +4,17 @@ import core.command
 import core.bot_instance
 import core.irc_packet
 
+
 class ModuleMain(core.module.Module):
     def __init__(self, bot, name):
         super().__init__(bot, name)
 
         self.register_command(
-            core.command.Command("join", self.handle_join_command, 1, "<channel>", 
-                "Joins a channel.", "channel.join"))
+            core.command.Command("join", self.handle_join_command, 1, "<channel>",
+                                 "Joins a channel.", "channel.join"))
         self.register_command(
             core.command.Command("part", self.handle_part_command, 0, "(<channel>)",
-                "Leaves either the specified, or the current channel.", "channel.part"))
+                                 "Leaves either the specified, or the current channel.", "channel.part"))
 
     def handle_join_command(self, source, target, is_pm, args):
         target_channel_name = args[0]

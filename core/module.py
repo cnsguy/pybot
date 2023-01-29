@@ -1,7 +1,8 @@
 import core.json_data
 
+
 class Module:
-    def __init__(self, bot, name, stop_handler = None):
+    def __init__(self, bot, name, stop_handler=None):
         self.bot = bot
         self.name = name
         self.event_handlers = {}
