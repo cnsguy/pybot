@@ -2,6 +2,7 @@ import core.module
 import core.command
 import core.bot_instance
 import core.irc_packet
+import re
 
 
 class ModuleMain(core.module.Module):
@@ -11,28 +12,15 @@ class ModuleMain(core.module.Module):
 
     def handle_message(self, user_source, reply_target, is_pm, message):
         # XXX could be simplified now that sender nick isn't tracked - or could be restored into a form where it does in fact supply the right sender (strip colors)
-        if user_source.nick != "DiscordIRC" or is_pm:
+        if user_source.nick != "shitcord" or is_pm:
             return
 
-        if ":" not in message:
+        match = re.match('^<[^>]+> (.*)$', message)
+
+        if match is None:
             return
 
-        pre_splt = message.split(":")
-
-        if len(pre_splt) < 2:
-            return
-
-        pre = pre_splt.pop(0)
-        post = ":".join(pre_splt).lstrip()
-        splt = pre.split(" ")
-
-        if len(splt) < 2:
-            return
-
-        channel = splt.pop()
-
-        if not channel.startswith("#"):
-            return
+        post = match.group(1)
 
         if not post.startswith(self.bot.nick):
             return
@@ -43,4 +31,4 @@ class ModuleMain(core.module.Module):
             return
 
         result = module.run_talk(post)
-        self.bot.send_message(reply_target, "~msg %s %s" % (channel, result))
+        self.bot.send_message(reply_target, result)
