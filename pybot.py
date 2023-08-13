@@ -39,4 +39,5 @@ def main():
         del sys_modules["core.bot_instance"]
 
 
-main()
+if __name__ == "__main__":
+    main()
