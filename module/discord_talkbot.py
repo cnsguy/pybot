@@ -12,7 +12,7 @@ class ModuleMain(core.module.Module):
 
     def handle_message(self, user_source, reply_target, is_pm, message):
         # XXX could be simplified now that sender nick isn't tracked - or could be restored into a form where it does in fact supply the right sender (strip colors)
-        if user_source.nick != "shokey" or is_pm:
+        if is_pm or user_source.nick not in ("shokey", "sneedcord"):
             return
 
         match = re.match('^<[^>]+> (.*)$', message)
